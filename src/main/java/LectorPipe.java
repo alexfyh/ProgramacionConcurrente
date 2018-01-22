@@ -1,6 +1,5 @@
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -11,69 +10,76 @@ import org.jsoup.select.Elements;
 
 public class LectorPipe {
     private File incYmarc;
-    Element incidenciaPosterior;
-    Element incidenciaPrevia;
-    Element incidencia;
-    Element marcado;
-
-
-
-    public static void main(String[] args){
-        LectorPipe lectorPipe = new LectorPipe();
-        Document doc = lectorPipe.parsear();
-        Elements tables;
-        tables = doc.select("table");
-        lectorPipe.incidenciaPosterior = tables.first();
-        lectorPipe.incidenciaPrevia=tables.first().nextElementSibling();
-        lectorPipe.incidencia=tables.first().nextElementSibling().nextElementSibling();
-
-        Element arreglo = lectorPipe.getArreglo(lectorPipe.incidenciaPosterior);
-        lectorPipe.getMatriz(arreglo);
-
-
-
-    }
-    public Element getArreglo(Element tabla ){
-        Elements tablasHijas= tabla.select("tr");
-        Element tablas = tablasHijas.first().nextElementSibling();
-        Element arreglo = tablas.select("tbody").first();
-        return arreglo;
-    }
-    public Matriz getMatriz(Element arreglo){
-        try {
-        Elements filas = arreglo.select("tr");
-        Elements columnas = filas.first().select("td");
-        System.out.println("Cantidad de filas = "+ filas.size());
-        System.out.println("Cantidad de columnas = "+ columnas.size());
-        int[][] matriz = new int [filas.size()-1][columnas.size()-1];
-
-        for (int i = 1; i < filas.size(); i++) {
-            columnas=filas.get(i).select("td");
-            for (int j = 1; j <columnas.size() ; j++) {
-                matriz[i-1][j-1]=Integer.parseInt(columnas.get(j).text());
-            }
-        }
-        Matriz matrix =  new Matriz(matriz);
-        matrix.imprimir();
-        return matrix;
-        }
-        catch(Exception e){
-            return null;
-        }
-
-
-    }
+    private Element tablaPosterior;
+    private Element tablaPrevia;
+    private Element tablaCombinada;
+    private Element tablaMarcado;
+/*
+    private int [][] incidenciaPosterior;
+    private int [][] IncidenciaPrevia;
+    private int [][] incidenciaCombinada;
+    private int [][] marcados;
+*/
     public LectorPipe(){
         try {
             String direccion = (new File(".")).getCanonicalPath()+"//PetriNet//incidenciaYmarcado.html";
             this.incYmarc= new File(direccion);
+            Document doc = this.parsear();
+            Elements tables;
+            tables = doc.select("table");
+            this.tablaPosterior = tables.first();
+            this.tablaPrevia =tables.first().nextElementSibling();
+            this.tablaCombinada=tables.first().nextElementSibling().nextElementSibling();
+            this.tablaMarcado=tables.first().nextElementSibling().nextElementSibling().nextElementSibling().nextElementSibling();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public File getIncYmarc(){
-        return incYmarc;
+
+    public Element getSubTabla(Element tabla ){
+        Elements tablasHijas= tabla.select("tr");
+        Element tablas = tablasHijas.first().nextElementSibling();
+        Element subtabla = tablas.select("tbody").first();
+        return subtabla;
     }
+    public int[][] getArreglo(Element subTabla){
+        try {
+        Elements filas = subTabla.select("tr");
+        Elements columnas = filas.first().select("td");
+        //System.out.println("Cantidad de filas = "+ filas.size());
+        //System.out.println("Cantidad de columnas = "+ columnas.size());
+        int[][] arreglo = new int [filas.size()-1][columnas.size()-1];
+
+        for (int i = 1; i < filas.size(); i++) {
+            columnas=filas.get(i).select("td");
+            for (int j = 1; j <columnas.size() ; j++) {
+                arreglo[i-1][j-1]=Integer.parseInt(columnas.get(j).text());
+            }
+        }
+        return arreglo;
+        }
+        catch(Exception e){
+            return null;
+        }
+    }
+
+    public int[][] getIncidenciaPosterior(){
+        Element subtabla = this.getSubTabla(this.tablaPosterior);
+        return this.getArreglo(subtabla);
+    }
+    public int[][] getIncidenciaPrevia(){
+        Element subtabla = this.getSubTabla(this.tablaPrevia);
+        return this.getArreglo(subtabla);
+    }
+    public int[][] getIncidenciaCombinada(){
+        Element subtabla = this.getSubTabla(this.tablaCombinada);
+        return this.getArreglo(subtabla);
+    }
+    public int [][] getMarcados(){
+        Element subtabla = this.getSubTabla(this.tablaMarcado);
+        return this.getArreglo(subtabla);
+    }
+
     public Document parsear(){
         try {
         Document doc = Jsoup.parse(this.incYmarc, "UTF-8", "http://example.com/");
@@ -81,6 +87,25 @@ public class LectorPipe {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+    public static void main(String[] args){
+        try{
+            LectorPipe lectorPipe = new LectorPipe();
+            System.out.println("Matriz Posterior = ---------------------------------------------------------------");
+            Matriz matrizPost= new Matriz(lectorPipe.getIncidenciaPosterior());
+            matrizPost.imprimir();
+            System.out.println("Matriz Previa = ---------------------------------------------------------------");
+            Matriz matrizPrev= new Matriz(lectorPipe.getIncidenciaPrevia());
+            matrizPrev.imprimir();
+            System.out.println("Matriz Posterior = ---------------------------------------------------------------");
+            Matriz matrizComb= new Matriz(lectorPipe.getIncidenciaCombinada());
+            matrizComb.imprimir();
+            System.out.println("Matriz Marcados = ---------------------------------------------------------------");
+            Matriz matrizMarcados= new Matriz(lectorPipe.getMarcados());
+            matrizMarcados.imprimir();
+        }catch (Exception e){
+
         }
     }
 }
