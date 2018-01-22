@@ -1,54 +1,67 @@
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+
+
 public class LectorPipe {
     private File incYmarc;
+    Element incidenciaPosterior;
+    Element incidenciaPrevia;
+    Element incidencia;
+    Element marcado;
+
 
 
     public static void main(String[] args){
         LectorPipe lectorPipe = new LectorPipe();
         Document doc = lectorPipe.parsear();
-        //System.out.println(doc);
         Elements tables;
-        // Para la primera matriz = matriz de Incidencia Posterior
         tables = doc.select("table");
-        System.out.println("Posterior:");
-        System.out.println(tables.first().nextElementSibling().nextElementSibling().nextElementSibling().nextElementSibling().nextElementSibling().nextElementSibling());
-        /*
-        System.out.println("----------------------------------------------------------------------------------------------");
-        System.out.println("Previo:");
-        System.out.println(tables.next());
-        System.out.println("----------------------------------------------------------------------------------------------");
-        System.out.println("Combinado:");
-        System.out.println(tables.next());
-        System.out.println("----------------------------------------------------------------------------------------------");
-        System.out.println("Inhibido:");
-        System.out.println(tables.next());
-        */
+        lectorPipe.incidenciaPosterior = tables.first();
+        lectorPipe.incidenciaPrevia=tables.first().nextElementSibling();
+        lectorPipe.incidencia=tables.first().nextElementSibling().nextElementSibling();
+        //System.out.println(lectorPipe.getArreglo(lectorPipe.incidenciaPosterior));
 
-        /*
-        for (Element table :
-                tables) {
-            System.out.println("----------------------------------------------------------------------------------------------");
-            System.out.println(table);
+        Element arreglo = lectorPipe.getArreglo(lectorPipe.incidenciaPosterior);
+        lectorPipe.getMatriz(arreglo);
+
+
+
+    }
+    public Element getArreglo(Element tabla ){
+        Elements tablasHijas= tabla.select("tr");
+        Element tablas = tablasHijas.first().nextElementSibling();
+        Element arreglo = tablas.select("tbody").first();
+        return arreglo;
+    }
+    public String[][] getMatriz(Element arreglo){
+        Elements filas = arreglo.select("tr");
+        Elements columnas = filas.first().select("td");
+        System.out.println("Cantidad de filas = "+ filas.size());
+        System.out.println("Cantidad de columnas = "+ columnas.size());
+        String[][] matriz = new String[filas.size()-1][columnas.size()-1];
+
+        for (int i = 1; i < filas.size(); i++) {
+            columnas=filas.get(i).select("td");
+            for (int j = 1; j <columnas.size() ; j++) {
+                matriz[i-1][j-1]=columnas.get(j).text();
+            }
         }
-        */
+        for (int i = 0; i < matriz.length; i++) {
+            for (int j = 0; j < matriz[0].length; j++) {
+                System.out.print(matriz[i][j]);
+            }
+            System.out.println("");
+        }
 
-        System.err.print("--------------------");
-
-        // Para la segunda matriz = matriz de Incidencia Previa
-        tables = doc.select("zdzxc");
-        //System.out.print(table);
-
-        // Para la cuarta matriz = matriz de marcado
-        //table = doc.select("table").get(4);
-        //System.out.print(table);
-
-
-
+        //System.out.print(filas.get(28));
+        return matriz;
     }
     public LectorPipe(){
         try {
