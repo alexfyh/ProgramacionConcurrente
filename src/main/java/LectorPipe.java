@@ -16,9 +16,9 @@ public class LectorPipe {
     private Element tablaCombinada;
     private Element tablaMarcado;
 
-     File analisisInvariante;
-     Element tablaTInvariantes;
-     Element tablaPInvariantes;
+     private File analisisInvariante;
+     private Element tablaTInvariantes;
+     private Element tablaPInvariantes;
     /*
         private int [][] incidenciaPosterior;
         private int [][] IncidenciaPrevia;
