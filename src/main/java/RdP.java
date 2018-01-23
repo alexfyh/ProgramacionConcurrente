@@ -5,15 +5,15 @@ public class RdP {
     private Matriz incidenciaPrevia;
     private Matriz vectorSensibilizadas;
     private int contadorDisparos;
+    private LectorPipe lectorPipe;
 
     public RdP() {
         try {
-            LectorPipe lp = new LectorPipe();
-
-            this.marcadoInicial = (Matriz.obtenerFila(new Matriz(lp.getMarcados()),0)).transpuesta();
+             this.lectorPipe = new LectorPipe();
+            this.marcadoInicial = (Matriz.obtenerFila(new Matriz(lectorPipe.getMarcados()),0)).transpuesta();
             this.marcadoActual = this.marcadoInicial;
-            this.incidenciaPrevia = new Matriz(lp.getIncidenciaPrevia());
-            this.incidencia = new Matriz(lp.getIncidenciaCombinada());
+            this.incidenciaPrevia = new Matriz(lectorPipe.getIncidenciaPrevia());
+            this.incidencia = new Matriz(lectorPipe.getIncidenciaCombinada());
             this.vectorSensibilizadas = Sensibilizadas(incidenciaPrevia, marcadoInicial);
             contadorDisparos = 0;
         } catch (Exception e) {
@@ -35,6 +35,10 @@ public class RdP {
 
     public Matriz marcadoActual() {
         return this.marcadoActual;
+    }
+
+    public int getContadorDisparos() {
+        return contadorDisparos;
     }
 
     public boolean disparar(int x) throws Exception {
@@ -87,6 +91,11 @@ public class RdP {
     public Matriz getVectorSensibilizadas() {
         return vectorSensibilizadas;
     }
+
+    public LectorPipe getLectorPipe() {
+        return this.lectorPipe;
+    }
+
     /*
     public boolean transicionSensibilizada(int transición, Matriz VectorSensi) {
         if (VectorSensi.getMatriz()[0][transición] == 1) {
