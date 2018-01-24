@@ -16,9 +16,10 @@ public class LectorPipe {
     private Element tablaCombinada;
     private Element tablaMarcado;
 
-     private File analisisInvariante;
-     private Element tablaTInvariantes;
-     private Element tablaPInvariantes;
+    private File analisisInvariante;
+    private Element tablaTInvariantes;
+    private Element tablaPInvariantes;
+
     /*
         private int [][] incidenciaPosterior;
         private int [][] IncidenciaPrevia;
@@ -57,7 +58,7 @@ public class LectorPipe {
         return subtabla;
     }
 
-    public int[][] getArreglo(Element subTabla,int filaInicial, int columnaInicial) {
+    public int[][] getArreglo(Element subTabla, int filaInicial, int columnaInicial) {
         try {
             Elements filas = subTabla.select("tr");
             Elements columnas = filas.first().select("td");
@@ -78,29 +79,30 @@ public class LectorPipe {
 
     public int[][] getIncidenciaPosterior() {
         Element subtabla = this.getSubTabla(this.tablaPosterior);
-        return this.getArreglo(subtabla,1,1);
+        return this.getArreglo(subtabla, 1, 1);
     }
 
     public int[][] getIncidenciaPrevia() {
         Element subtabla = this.getSubTabla(this.tablaPrevia);
-        return this.getArreglo(subtabla,1,1);
+        return this.getArreglo(subtabla, 1, 1);
     }
 
     public int[][] getIncidenciaCombinada() {
         Element subtabla = this.getSubTabla(this.tablaCombinada);
-        return this.getArreglo(subtabla,1,1);
+        return this.getArreglo(subtabla, 1, 1);
     }
 
     public int[][] getMarcados() {
         Element subtabla = this.getSubTabla(this.tablaMarcado);
-        return this.getArreglo(subtabla,1,1);
+        return this.getArreglo(subtabla, 1, 1);
     }
 
-    public int[][] getTInvariantes(){
-        return this.getArreglo(this.tablaTInvariantes,1,0);
+    public int[][] getTInvariantes() {
+        return this.getArreglo(this.tablaTInvariantes, 1, 0);
     }
-    public int[][] getPInvariantes(){
-        return this.getArreglo(this.tablaPInvariantes,1,0);
+
+    public int[][] getPInvariantes() {
+        return this.getArreglo(this.tablaPInvariantes, 1, 0);
     }
 
     public Document parsear(File file) {
@@ -160,6 +162,9 @@ public class LectorPipe {
             System.out.println("Matriz P Invariantes = ---------------------------------------------------------------");
             Matriz pInvariantes= new Matriz(lectorPipe.getPInvariantes());
             pInvariantes.imprimir();
+
+            System.out.println("Cantidad de T Invariantes = "+ lectorPipe.getTInvariantes().length);
+            System.out.println("Cantidad de transiciones = " + lectorPipe.getTInvariantes()[0].length);
         } catch (Exception e) {
             System.err.println("Error al crear el lector");
         }
