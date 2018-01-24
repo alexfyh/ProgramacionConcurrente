@@ -150,15 +150,15 @@ public class LectorPipe {
         for (String cadena :
                 cast) {
             if(cadena.trim().length()!=0){
-                ecuaciones.add(cadena.trim());
+                cast=cadena.trim().split("=");
+                ecuaciones.add(cast[1].trim().toString());
             }
         }
-        for (String ecuacion :
-                ecuaciones) {
-            System.out.println(ecuacion);
+        int [][] resultado = new int[ecuaciones.size()][1];
+        for (int i = 0; i < ecuaciones.size(); i++) {
+            resultado[i][0] = Integer.parseInt(ecuaciones.get(i));
         }
-        System.out.println(ecuaciones.size());
-        return null;
+        return resultado;
 
     }
 
@@ -189,8 +189,9 @@ public class LectorPipe {
             System.out.println("Cantidad de T Invariantes = "+ lectorPipe.getTInvariantes().length);
             System.out.println("Cantidad de transiciones = " + lectorPipe.getTInvariantes()[0].length);
 
-
-            lectorPipe.getResultadoPInvariantes();
+            System.out.println("Resultado de los  P Invariantes = ---------------------------------------------------------------");
+            Matriz resultadoInvariantes= new Matriz(lectorPipe.getResultadoPInvariantes());
+            resultadoInvariantes.imprimir();
         } catch (Exception e) {
             System.err.println("Error al crear el lector");
         }
