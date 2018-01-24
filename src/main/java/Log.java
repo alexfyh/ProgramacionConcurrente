@@ -118,7 +118,8 @@ public class Log {
 
     public synchronized void registrarBasico(Monitor m, int transicion, boolean bool) {
         //escribir("------------------------------------------------------------------------------------------------------------------", this.getRegistro());
-        escribir("\n", this.getRegistro());
+        escribir("\n"+"Tiempo = "+ m.currentTime(), this.getRegistro());
+        //escribir("\n", this.getRegistro());
         escribir("Contador de disparos : " + m.getPetri().getContadorDisparos(), this.getRegistro());
         escribir("\n", this.getRegistro());
         String cadena;

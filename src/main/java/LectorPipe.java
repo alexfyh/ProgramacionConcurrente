@@ -3,6 +3,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.print.Doc;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -139,6 +140,28 @@ public class LectorPipe {
         return nombrePlazas;
     }
 
+    public int[][] getResultadoPInvariantes(){
+        Document doc = this.parsear(this.analisisInvariante);
+        String [] cast = doc.toString().split("<h3> P-Invariant equations </h3>");
+        cast = cast[1].split("Analysis time:");
+        cast = cast[0].split("<br>");
+        List<String> ecuaciones= new ArrayList<String>();
+
+        for (String cadena :
+                cast) {
+            if(cadena.trim().length()!=0){
+                ecuaciones.add(cadena.trim());
+            }
+        }
+        for (String ecuacion :
+                ecuaciones) {
+            System.out.println(ecuacion);
+        }
+        System.out.println(ecuaciones.size());
+        return null;
+
+    }
+
     public static void main(String[] args) {
         try {
             LectorPipe lectorPipe = new LectorPipe();
@@ -165,6 +188,9 @@ public class LectorPipe {
 
             System.out.println("Cantidad de T Invariantes = "+ lectorPipe.getTInvariantes().length);
             System.out.println("Cantidad de transiciones = " + lectorPipe.getTInvariantes()[0].length);
+
+
+            lectorPipe.getResultadoPInvariantes();
         } catch (Exception e) {
             System.err.println("Error al crear el lector");
         }

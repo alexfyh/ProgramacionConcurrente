@@ -13,9 +13,12 @@ public class Monitor {
     private Matriz VectorAnd;
     private Log log;
     private Politica politica;
+    private long startTime;
+    private final long unidadTiempo = 100;
 
     public Monitor(int pol) {
         try {
+            this.startTime = System.currentTimeMillis();
             mutex = new Semaphore(1, true);
             k = true;
             petri = new RdP();
@@ -127,5 +130,9 @@ public class Monitor {
 
     public Matriz getVectorAnd() {
         return this.VectorAnd;
+    }
+
+    public long currentTime(){
+        return (System.currentTimeMillis()-this.startTime)/unidadTiempo;
     }
 }
