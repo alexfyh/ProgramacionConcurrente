@@ -54,11 +54,52 @@ public class LectorTina {
         return lineasExtraidas;
     }
 
+    public int[] getArregloAlfa(){
+        List<String> listaTransiciones = this.lectorPipe.nombreTransiciones();
+        int[] alfa = new int[listaTransiciones.size()];
+        for (int i = 0; i <listaTransiciones.size() ; i++) {
+            List<String> lineaDeTransicion = extraerLineas("tr " + listaTransiciones.get(i));
+            if (lineaDeTransicion.get(0).contains(",")){
+                String[] cast = lineaDeTransicion.get(0).split(",");
+                cast = cast[0].split("[\\[\\]]");
+                alfa[i]= Integer.parseInt(cast[1]);
+            }
+        }
+        return alfa;
+    }
+    public int[] getArregloBeta(){
+        List<String> listaTransiciones = this.lectorPipe.nombreTransiciones();
+        int[] beta = new int[listaTransiciones.size()];
+        for (int i = 0; i <listaTransiciones.size() ; i++) {
+            List<String> lineaDeTransicion = extraerLineas("tr " + listaTransiciones.get(i));
+            if (lineaDeTransicion.get(0).contains(",")){
+                String[] cast = lineaDeTransicion.get(0).split(",");
+                cast = cast[1].split("[\\[\\]]");
+                if(cast[0].trim().equals("w")){
+                    beta[i]= Integer.MAX_VALUE;
+                }
+                else{
+                    beta[i]= Integer.parseInt(cast[0]);
+                }
+            }
+            else{
+                beta[i]= Integer.MAX_VALUE;
+            }
+        }
+        return beta;
+    }
+
     public static void main(String[] args){
         LectorTina lectorTina = new LectorTina(new LectorPipe());
-        for (String linea :
-                lectorTina.extraerLineas("tr ")) {
-            System.out.println(linea);
+
+        for (int entero :
+                lectorTina.getArregloAlfa()) {
+            System.out.println(entero);
+        }
+        System.out.println("-----------");
+        for (int entero :
+                lectorTina.getArregloBeta()) {
+            System.out.println(entero);
         }
     }
 }
