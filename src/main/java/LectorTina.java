@@ -40,16 +40,24 @@ public class LectorTina {
         }
     }
     public List<String> extraerLineas(String comienzo){
+        String regex = "^"+comienzo;
+        Pattern patron = Pattern.compile(regex);
         List<String> lineasExtraidas = new ArrayList<String>();
-        
 
+        for (String linea :
+                this.LineasStruct) {
+            Matcher match = patron.matcher(linea);
+            if(match.find()){
+                lineasExtraidas.add(linea);
+            }
+        }
         return lineasExtraidas;
     }
 
     public static void main(String[] args){
         LectorTina lectorTina = new LectorTina(new LectorPipe());
         for (String linea :
-                lectorTina.LineasStruct) {
+                lectorTina.extraerLineas("tr ")) {
             System.out.println(linea);
         }
     }
