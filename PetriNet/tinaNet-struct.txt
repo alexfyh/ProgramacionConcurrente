@@ -1,0 +1,76 @@
+Struct version 3.4.4 -- 01/05/16 -- LAAS/CNRS
+
+parsed net tinaNet_1
+
+28 places, 20 transitions
+
+net tinaNet_1
+tr T10 P10 R1 -> P11 
+tr T11 M1 P11 -> P12 R1 
+tr T12 M3 P11 s1 -> P13 R1 
+tr T13 P12 R2 s2 -> M1 P14 
+tr T14 P13 R2 -> M3 P15 
+tr T15 M2 P14 -> P16 R2 
+tr T16 M4 P15 -> P17 R2 
+tr T17 P16 R3 -> M2 P18 s2 
+tr T18 P17 R3 -> M4 P18 s1 
+tr T19 P18 -> P10 R3 
+tr T21 P20 R2 s2 -> P21 
+tr T22 M2 P21 -> P22 R2 
+tr T23 P22 R2 -> M2 P23 s2 
+tr T24 P23 -> P20 R2 
+tr T31 P30 R3 s1 -> P31 
+tr T32 M4 P31 -> P32 R3 
+tr T33 P32 R2 -> M4 P33 
+tr T34 M3 P33 -> P34 R2 
+tr T35 P34 R1 -> M3 P35 s1 
+tr T36 P35 -> P30 R1 
+pl M1 (1)
+pl M2 (1)
+pl M3 (1)
+pl M4 (1)
+pl P10 (10)
+pl P20 (10)
+pl P30 (10)
+pl R1 (1)
+pl R2 (1)
+pl R3 (1)
+pl s1 (1)
+pl s2 (1)
+
+0.000s
+
+P-SEMI-FLOWS GENERATING SET ------------------------------------- 
+
+invariant
+
+M1 P12 (1)
+P10 P11 P12 P13 P14 P15 P16 P17 P18 (10)
+P14 P16 P21 P22 s2 (1)
+M2 P16 P22 (1)
+P20 P21 P22 P23 (10)
+P18 P31 R3 (1)
+M4 P17 P32 (1)
+P14 P15 P21 P23 P33 R2 (1)
+P13 P15 P17 P31 P32 P33 P34 s1 (1)
+M3 P13 P34 (1)
+P30 P31 P32 P33 P34 P35 (10)
+P11 P35 R1 (1)
+
+0.000s
+
+T-SEMI-FLOWS GENERATING SET ------------------------------------- 
+
+consistent
+
+T10 T12 T14 T16 T18 T19
+T10 T11 T13 T15 T17 T19
+T21 T22 T23 T24
+T31 T32 T33 T34 T35 T36
+
+0.000s
+
+ANALYSIS COMPLETED  --------------------------------------------- 
+
+
+
