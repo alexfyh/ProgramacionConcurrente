@@ -11,7 +11,7 @@ public class RdP {
     private int [] beta;
     private long [] timeStamp;
     private long startTime;
-    private final int unidadTiempo = 100;
+    public final int unidadTiempo = 100;
 
     private String[] autorizados;
 
@@ -182,5 +182,13 @@ public class RdP {
 
     public void setAutorizado(String hilo, int transicion){
 
+    }
+
+    public int[] getAlfa() {
+        return alfa;
+    }
+
+    public int[] getBeta() {
+        return beta;
     }
 }
