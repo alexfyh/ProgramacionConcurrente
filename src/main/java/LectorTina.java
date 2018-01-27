@@ -76,14 +76,16 @@ public class LectorTina {
                 String[] cast = lineaDeTransicion.get(0).split(",");
                 cast = cast[1].split("[\\[\\]]");
                 if(cast[0].trim().equals("w")){
-                    beta[i]= Integer.MAX_VALUE;
+                    beta[i]= 100000;
+                    //beta[i]= Integer.MAX_VALUE;
                 }
                 else{
                     beta[i]= Integer.parseInt(cast[0]);
                 }
             }
             else{
-                beta[i]= Integer.MAX_VALUE;
+                beta[i]= 100000;
+                //beta[i]= Integer.MAX_VALUE;
             }
         }
         return beta;

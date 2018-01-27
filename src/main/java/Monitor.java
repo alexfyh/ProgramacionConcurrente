@@ -13,12 +13,12 @@ public class Monitor {
     private Matriz VectorAnd;
     private Log log;
     private Politica politica;
-    private long startTime;
-    private final long unidadTiempo = 100;
+
+    private long tiempo;
+
 
     public Monitor(int pol) {
         try {
-            this.startTime = System.currentTimeMillis();
             mutex = new Semaphore(1, true);
             k = true;
             petri = new RdP();
@@ -53,7 +53,8 @@ public class Monitor {
             this.log.escribir(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", this.log.getRegistro());
 
             while (k == true) {
-                k = petri.disparar(transicion);
+                tiempo = getPetri().currentTime();
+                k = petri.disparar(transicion,tiempo);
                 if (k == true) {
                     this.politica.incrementarDisparoDeTransicion(transicion);
                     // Sin esta linea no se actualiza porque direcciona a un viejo VectorSensibilizada
@@ -67,7 +68,7 @@ public class Monitor {
                     if (politica.hayAlguienParaDespertar(VectorAnd)) {
                         Integer locker = politica.getLock(VectorAnd);
                         int t = locker.intValue();
-                        this.log.registrar(this, transicion, true, mapa.get(locker));
+                        this.log.registrar(this, transicion, true, mapa.get(locker),tiempo);
                         VectorEncolados.getMatriz()[0][t] = 0;
                         //log.registrarEXtendido(this, VectorAnd, mapa.get(locker));
                         while (mapa.get(locker).getState() != Thread.State.WAITING) {
@@ -79,12 +80,12 @@ public class Monitor {
                             return;
                         }
                     } else {
-                        this.log.registrar(this, transicion, true, null);
+                        this.log.registrar(this, transicion, true, null,tiempo);
                         k = false;
                     }
                 } else {
                     VectorEncolados.getMatriz()[0][transicion] = 1;
-                    this.log.registrar(this, transicion, false, null);
+                    this.log.registrar(this, transicion, false, null,tiempo);
                     synchronized (transicion) {
                         this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex", this.log.getRegistro());
                         this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", this.log.getRegistro());
@@ -132,7 +133,4 @@ public class Monitor {
         return this.VectorAnd;
     }
 
-    public long currentTime(){
-        return (System.currentTimeMillis()-this.startTime)/unidadTiempo;
-    }
 }
