@@ -116,9 +116,9 @@ public class Log {
         }
     }
 
-    public synchronized void registrarBasico(Monitor m, int transicion, boolean bool) {
+    public synchronized void registrarBasico(Monitor m, int transicion, boolean bool,long tiempo) {
         //escribir("------------------------------------------------------------------------------------------------------------------", this.getRegistro());
-        escribir("\n"+"Tiempo = "+ m.currentTime(), this.getRegistro());
+        escribir("\n"+"Tiempo = "+ tiempo, this.getRegistro());
         //escribir("\n", this.getRegistro());
         escribir("Contador de disparos : " + m.getPetri().getContadorDisparos(), this.getRegistro());
         escribir("\n", this.getRegistro());
@@ -156,10 +156,22 @@ public class Log {
         escribir("\n", this.getRegistro());
     }
 
-    public synchronized void registrar(Monitor m, int transicion, boolean bool, Hilo h) {
-        registrarBasico(m, transicion, bool);
+    public synchronized void registrarTimeStamp(Monitor m) {
+        escribir("TimeStamp = "+"\n", this.getRegistro());
+        String cadena="";
+        for (long l :
+                m.getPetri().getTimeStamp()) {
+            cadena=cadena + "||"+ Long.toString(l);
+        }
+        escribir(cadena,this.getRegistro());
+    }
+
+
+    public synchronized void registrar(Monitor m, int transicion, boolean bool, Hilo h,long tiempo) {
+        registrarBasico(m, transicion, bool,tiempo);
         registrarBasico2(m, m.getPetri().getVectorSensibilizadas(), m.getVectorEncolados());
         registrarEXtendido(m, m.getVectorAnd(), h);
+        registrarTimeStamp(m);
     }
 
     public List<String> extraerLineas(String coincidencia, int desfasaje) {
