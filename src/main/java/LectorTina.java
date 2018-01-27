@@ -18,7 +18,7 @@ public class LectorTina {
         BufferedReader br = null;
         try {
         this.lectorPipe = lectorPipe;
-            String direccion = (new File(".")).getCanonicalPath() + "//PetriNet//tinaNet-struct.txt";
+            String direccion = (new File(".")).getCanonicalPath() + "//PetriNet//tinaNetTemporal-struct.txt";
             this.struct = new File(direccion);
 
             fr = new FileReader (struct);
