@@ -58,6 +58,7 @@ public abstract class Politica {
                     this.DisparosPorTransicion[indice] = this.DisparosPorTransicion[indice] - this.arregloTInvariante[i][indice];
 
                 }
+                actualizarVista();
             }
         }
     }
@@ -71,6 +72,12 @@ public abstract class Politica {
         v.repaint();
     }
 
-    public abstract boolean hayAlguienParaDespertar(Matriz And);
+    public boolean hayAlguienParaDespertar(Matriz And){
+        if (And.cantidadDeUnos() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

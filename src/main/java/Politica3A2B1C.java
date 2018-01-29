@@ -17,36 +17,4 @@ public class Politica3A2B1C extends Politica {
         System.err.println("No se ha seleccionado ninguno hilo del vector AND");
         return getInteger(0);
     }
-
-    public boolean hayAlguienParaDespertar(Matriz And) {
-        if (((lineaDeProduccion[0] + lineaDeProduccion[1]) / 50) > (lineaDeProduccion[3] / 50) * 3) {
-            if (lineaDeProduccion[2] / 50 > (lineaDeProduccion[3] / 50) * 2) {
-                this.secuencia = equilibrio;
-            } else {
-                this.secuencia = preferenciaB;
-            }
-        } else {
-            if (((lineaDeProduccion[0] + lineaDeProduccion[1]) / 50) * 2 > (lineaDeProduccion[2] / 50) * 3) {
-                this.secuencia = preferenciaB;
-            } else {
-                this.secuencia = preferenciaA;
-            }
-        }
-        try {
-            Matriz andMod = And.clonar();
-            if (this.secuencia == preferenciaA) {
-                andMod.getMatriz()[0][10] = 0;
-                andMod.getMatriz()[0][14] = 0;
-            }
-            for (int i = 0; i < this.secuencia.length; i++) {
-                if (andMod.getMatriz()[0][secuencia[i]] == 1) {
-                    return true;
-                }
-            }
-            return false;
-        } catch (Exception e) {
-            System.err.println("Error en hay alguien por despertar");
-            return false;
-        }
-    }
 }

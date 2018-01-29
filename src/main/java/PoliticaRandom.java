@@ -22,12 +22,4 @@ public class PoliticaRandom extends Politica {
         }
         return getInteger(enteros.get((int) (Math.random() * enteros.size())));
     }
-
-    public boolean hayAlguienParaDespertar(Matriz And) {
-        if (And.cantidadDeUnos() > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

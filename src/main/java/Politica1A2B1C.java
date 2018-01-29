@@ -22,12 +22,4 @@ public class Politica1A2B1C extends Politica {
         System.err.println("No se ha seleccionado ninguno hilo del vector AND");
         return getInteger(0);
     }
-
-    public boolean hayAlguienParaDespertar(Matriz And) {
-        if (And.cantidadDeUnos() > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }
