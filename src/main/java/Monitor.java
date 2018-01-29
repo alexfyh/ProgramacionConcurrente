@@ -4,27 +4,32 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 public class Monitor {
-    public Semaphore mutex;
+    private static Monitor UniqueInstance;
+    private Semaphore mutex;
     private boolean k;
     private RdP petri;
     private Map<Integer, Hilo> mapa;
-    private Matriz VectorSensibilizados;
     private Matriz VectorEncolados;
     private Matriz VectorAnd;
     private Log log;
     private Politica politica;
     private long tiempo;
-    private int contadorSolicitud;
 
-    public Monitor(int pol) {
+    public static Monitor getUniqueInstance(int pol){
+        if (Monitor.UniqueInstance==null){
+            Monitor.UniqueInstance = new Monitor(pol);
+            return  Monitor.UniqueInstance;
+        }
+        else{
+            return Monitor.UniqueInstance;
+        }
+    }
+    private Monitor(int pol) {
         try {
-
-            contadorSolicitud = 0;
             mutex = new Semaphore(1, true);
             k = true;
             petri = new RdP();
             mapa = new HashMap<Integer, Hilo>();
-            VectorSensibilizados = RdP.Sensibilizadas(petri.getIncidenciaPrevia(), getPetri().marcadoActual());
             VectorEncolados = Matriz.matrizVacia(1, petri.getIncidenciaPrevia().getN());
             VectorAnd = Matriz.matrizVacia(1, getPetri().getIncidenciaPrevia().getN());
             if (pol == 1) {
@@ -58,14 +63,13 @@ public class Monitor {
                 this.log.escribir(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", this.log.getRegistro());
 
                 while (k == true) {
-                    contadorSolicitud++;
                     tiempo = getPetri().currentTime();
-                    k = petri.disparar(transicion, tiempo);
+                    k = petri.disparar(transicion, tiempo,((Hilo) (Thread.currentThread())).getNombre());
                     if (k == true) {
                         this.politica.incrementarDisparoDeTransicion(transicion);
                         // Sin esta linea no se actualiza porque direcciona a un viejo VectorSensibilizada
-                        VectorSensibilizados = getPetri().getVectorSensibilizadas();
-                        VectorAnd.and(VectorSensibilizados, VectorEncolados);
+                        //VectorSensibilizados = getPetri().getVectorSensibilizadas();
+                        VectorAnd.and(this.getPetri().getVectorSensibilizadas(), VectorEncolados);
                         if (politica.hayAlguienParaDespertar(VectorAnd)) {
                             Integer locker = politica.getLock(VectorAnd);
                             int t = locker.intValue();
@@ -166,10 +170,6 @@ public class Monitor {
                 e.printStackTrace();
             }
         }
-    }
-
-    public int getContadorSolicitud() {
-        return this.contadorSolicitud;
     }
 
     public Politica getPolitica() {

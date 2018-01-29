@@ -6,9 +6,9 @@ public class Hilo extends Thread {
     final Monitor monitor;
     final List<Integer> enteros;
 
-    public Hilo(String nombre, List<Integer> enteros, Monitor monitor) {
+    public Hilo(String nombre, List<Integer> enteros,int pol) {
         this.nombre = nombre;
-        this.monitor = monitor;
+        this.monitor = Monitor.getUniqueInstance(pol);
         this.enteros = enteros;
     }
 

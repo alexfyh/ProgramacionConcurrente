@@ -5,6 +5,7 @@ public class RdP {
     private Matriz incidenciaPrevia;
     private Matriz vectorSensibilizadas;
     private int contadorDisparos;
+    private int contadorSolicitud;
     private LectorPipe lectorPipe;
 
     private int[] alfa;
@@ -34,6 +35,7 @@ public class RdP {
             }
             this.autorizados = new String[this.alfa.length];
             contadorDisparos = 0;
+            contadorSolicitud = 0;
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -59,13 +61,17 @@ public class RdP {
         return contadorDisparos;
     }
 
-    public boolean disparar(int x, long tiempo) throws Exception {
+    public int getContadorSolicitud() {
+        return this.contadorSolicitud;
+    }
+
+    public boolean disparar(int x, long tiempo,String nombre) throws Exception {
         try {
             if (x < 0 || x > this.incidencia.getMatriz()[0].length) {
                 throw new Exception("Transicion no valida.");
             }
-            Hilo hilo = (Hilo) Thread.currentThread();
-            if (this.transicionSensibilizada(x, vectorSensibilizadas) && estaDentroVentana(x, tiempo) && estaAutorizado(hilo.getNombre(), x)) {
+            contadorSolicitud++;
+            if (this.transicionSensibilizada(x, vectorSensibilizadas) && estaDentroVentana(x, tiempo) && estaAutorizado(nombre, x)) {
                 this.marcadoActual = Matriz.suma(this.marcadoActual, Matriz.obtenerColumna(this.incidencia, x));
                 Matriz sensibilizadosViejos = getVectorSensibilizadas();
                 //int sensiPrevio = sensibilizadosViejos.getMatriz()[0][x];

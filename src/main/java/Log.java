@@ -116,7 +116,7 @@ public class Log {
     }
 
     public synchronized void registrarBasico(Monitor m, int transicion, boolean bool, long tiempo, int resultado) {
-        escribir("\n" + "Solicitud = " + m.getContadorSolicitud(), this.getRegistro());
+        escribir("\n" + "Solicitud = " + m.getPetri().getContadorSolicitud(), this.getRegistro());
         escribir("Contador de disparos : " + m.getPetri().getContadorDisparos(), this.getRegistro());
         escribir("\n" + "Tiempo = " + tiempo, this.getRegistro());
         escribir("Cantidad de piezas producidas:  " + "A = " + (m.getPolitica().getLineaDeProduccion()[0] + m.getPolitica().getLineaDeProduccion()[1])
