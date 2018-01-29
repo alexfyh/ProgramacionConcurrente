@@ -7,9 +7,9 @@ public class RdP {
     private int contadorDisparos;
     private LectorPipe lectorPipe;
 
-    private int [] alfa;
-    private int [] beta;
-    private long [] timeStamp;
+    private int[] alfa;
+    private int[] beta;
+    private long[] timeStamp;
     private long startTime;
     public final int unidadTiempo = 100;
 
@@ -17,25 +17,22 @@ public class RdP {
 
     public RdP() {
         try {
-             this.lectorPipe = new LectorPipe();
-            this.marcadoInicial = (Matriz.obtenerFila(new Matriz(lectorPipe.getMarcados()),0)).transpuesta();
+            this.lectorPipe = new LectorPipe();
+            this.marcadoInicial = (Matriz.obtenerFila(new Matriz(lectorPipe.getMarcados()), 0)).transpuesta();
             this.marcadoActual = this.marcadoInicial;
             this.incidenciaPrevia = new Matriz(lectorPipe.getIncidenciaPrevia());
             this.incidencia = new Matriz(lectorPipe.getIncidenciaCombinada());
             this.vectorSensibilizadas = Sensibilizadas(incidenciaPrevia, marcadoInicial);
 
-            LectorTina lectorTina= new LectorTina(this.lectorPipe);
-            this.alfa=lectorTina.getArregloAlfa();
-            this.beta=lectorTina.getArregloBeta();
-            this.startTime =System.currentTimeMillis();
+            LectorTina lectorTina = new LectorTina(this.lectorPipe);
+            this.alfa = lectorTina.getArregloAlfa();
+            this.beta = lectorTina.getArregloBeta();
+            this.startTime = System.currentTimeMillis();
             this.timeStamp = new long[this.alfa.length];
             for (int i = 0; i < timeStamp.length; i++) {
-                timeStamp[i]= this.currentTime();
+                timeStamp[i] = this.currentTime();
             }
-
-
             this.autorizados = new String[this.alfa.length];
-
             contadorDisparos = 0;
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -68,16 +65,17 @@ public class RdP {
                 throw new Exception("Transicion no valida.");
             }
             Hilo hilo = (Hilo) Thread.currentThread();
-            if (this.transicionSensibilizada(x,vectorSensibilizadas)&&estaDentroVentana(x,tiempo)&&estaAutorizado(hilo.getNombre(),x)) {
+            if (this.transicionSensibilizada(x, vectorSensibilizadas) && estaDentroVentana(x, tiempo) && estaAutorizado(hilo.getNombre(), x)) {
                 this.marcadoActual = Matriz.suma(this.marcadoActual, Matriz.obtenerColumna(this.incidencia, x));
                 Matriz sensibilizadosViejos = getVectorSensibilizadas();
                 //int sensiPrevio = sensibilizadosViejos.getMatriz()[0][x];
                 this.vectorSensibilizadas = Sensibilizadas(this.incidenciaPrevia, this.marcadoActual);
-                actualizarTimeStamp(sensibilizadosViejos,vectorSensibilizadas,this.currentTime());
+                actualizarTimeStamp(sensibilizadosViejos, vectorSensibilizadas, tiempo);
                 //sensiPrevio tuvo que ser 1 porque se pudo disparar
-                if(sensibilizadosViejos.getMatriz()[0][x]==vectorSensibilizadas.getMatriz()[0][x]){
-                    timeStamp[x]=tiempo;
+                if (sensibilizadosViejos.getMatriz()[0][x] == vectorSensibilizadas.getMatriz()[0][x]) {
+                    timeStamp[x] = tiempo;
                 }
+                autorizados[x] = null;
                 contadorDisparos++;
                 System.out.println("Contador de Disparos =  " + contadorDisparos);
                 return true;
@@ -125,25 +123,26 @@ public class RdP {
         return this.lectorPipe;
     }
 
-    public void actualizarTimeStamp(Matriz vectorSensibilizadasPrevia, Matriz vectorSensibilizadasNuevo,long tiempo){
-        int [][] previa = vectorSensibilizadasPrevia.getMatriz();
-        int [][] nuevo = vectorSensibilizadasNuevo.getMatriz();
+    public void actualizarTimeStamp(Matriz vectorSensibilizadasPrevia, Matriz vectorSensibilizadasNuevo, long tiempo) {
+        int[][] previa = vectorSensibilizadasPrevia.getMatriz();
+        int[][] nuevo = vectorSensibilizadasNuevo.getMatriz();
         for (int i = 0; i < nuevo[0].length; i++) {
-            if(nuevo[0][i]==0) {
-                this.timeStamp[i]=-1L;
-            }
-            else{
-                if(previa[0][i]==0){
+            if (nuevo[0][i] == 0) {
+                this.timeStamp[i] = -1L;
+            } else {
+                if (previa[0][i] == 0) {
                     this.timeStamp[i] = tiempo;
                 }
             }
         }
     }
-    public long [] getTimeStamp(){
+
+    public long[] getTimeStamp() {
         return this.timeStamp;
     }
-    public long currentTime(){
-        return (System.currentTimeMillis()-this.startTime);
+
+    public long currentTime() {
+        return (System.currentTimeMillis() - this.startTime);
     }
 
     public boolean transicionSensibilizada(int transición, Matriz VectorSensi) {
@@ -154,34 +153,25 @@ public class RdP {
         }
     }
 
-
-    public boolean estaDentroVentana(int x, long tiempo){
-        if((this.timeStamp[x]+this.alfa[x]*unidadTiempo)<=tiempo&&
-        (tiempo<=this.timeStamp[x]+this.beta[x]*unidadTiempo)){
+    public boolean estaDentroVentana(int x, long tiempo) {
+        if ((this.timeStamp[x] + this.alfa[x] * unidadTiempo) <= tiempo &&
+                (tiempo <= this.timeStamp[x] + this.beta[x] * unidadTiempo)) {
             return true;
-        }
-        else{
-            // tuve que cambiar el valor de beta a un numero mas chico porque sino saltaba cualquier cosa
-            /*
-            System.out.println((this.timeStamp[x]+this.alfa[x]*unidadTiempo));
-            System.out.println(this.currentTime());
-            System.out.println(this.timeStamp[x]+this.beta[x]*unidadTiempo);
-            */
+        } else {
             return false;
         }
     }
 
-    public boolean estaAutorizado(String hilo,int transicion){
-        if(autorizados[transicion]==null||autorizados[transicion].equals(hilo.trim())){
+    public boolean estaAutorizado(String hilo, int transicion) {
+        if (autorizados[transicion] == null || autorizados[transicion].equals(hilo.trim())) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
 
-    public void setAutorizado(String hilo, int transicion){
-
+    public void setAutorizado(String hilo, int transicion) {
+        this.autorizados[transicion] = hilo;
     }
 
     public int[] getAlfa() {

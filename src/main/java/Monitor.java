@@ -3,8 +3,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-import static java.lang.Thread.sleep;
-
 public class Monitor {
     public Semaphore mutex;
     private boolean k;
@@ -15,12 +13,13 @@ public class Monitor {
     private Matriz VectorAnd;
     private Log log;
     private Politica politica;
-
     private long tiempo;
-
+    private int contadorSolicitud;
 
     public Monitor(int pol) {
         try {
+
+            contadorSolicitud = 0;
             mutex = new Semaphore(1, true);
             k = true;
             petri = new RdP();
@@ -47,101 +46,81 @@ public class Monitor {
     }
 
     public void dispararTransicion(Integer transicion) {
-        try {
-            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  pide el mutex.", this.log.getRegistro());
-            mutex.acquire();
-            k = true;
-            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  obtiene el mutex.", this.log.getRegistro());
-            this.log.escribir(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", this.log.getRegistro());
+        boolean volverADisparar;
+        long diferencia = 0L;
+        do {
+            volverADisparar = false;
+            try {
+                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  pide el mutex.", this.log.getRegistro());
+                mutex.acquire();
+                k = true;
+                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  obtiene el mutex.", this.log.getRegistro());
+                this.log.escribir(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", this.log.getRegistro());
 
-            while (k == true) {
-                tiempo = getPetri().currentTime();
-                k = petri.disparar(transicion,tiempo);
-                if (k == true) {
-                    this.politica.incrementarDisparoDeTransicion(transicion);
-                    // Sin esta linea no se actualiza porque direcciona a un viejo VectorSensibilizada
-                    VectorSensibilizados = getPetri().getVectorSensibilizadas();
-
-                    this.log.escribir("Cantidad de piezas producidas:  " + "A = " + (politica.getLineaDeProduccion()[0] + politica.getLineaDeProduccion()[1])
-                            + "   B = " + politica.getLineaDeProduccion()[2] + "   C = " + politica.getLineaDeProduccion()[3], log.getRegistro());
-                    politica.actualizarVista();
-                    VectorAnd.and(VectorSensibilizados, VectorEncolados);
-
-                    if (politica.hayAlguienParaDespertar(VectorAnd)) {
-                        Integer locker = politica.getLock(VectorAnd);
-                        int t = locker.intValue();
-                        this.log.registrar(this, transicion, true, mapa.get(locker),tiempo);
-                        VectorEncolados.getMatriz()[0][t] = 0;
-                        //log.registrarEXtendido(this, VectorAnd, mapa.get(locker));
-                        while (mapa.get(locker).getState() != Thread.State.WAITING) {
-                            Thread.currentThread().sleep(1);
-                            System.err.println("Esperando que se duerma para despertarlo : " + mapa.get(locker).getNombre());
-                        }
-                        synchronized (locker) {
-                            locker.notifyAll();
-                            return;
+                while (k == true) {
+                    contadorSolicitud++;
+                    tiempo = getPetri().currentTime();
+                    k = petri.disparar(transicion, tiempo);
+                    if (k == true) {
+                        this.politica.incrementarDisparoDeTransicion(transicion);
+                        // Sin esta linea no se actualiza porque direcciona a un viejo VectorSensibilizada
+                        VectorSensibilizados = getPetri().getVectorSensibilizadas();
+                        VectorAnd.and(VectorSensibilizados, VectorEncolados);
+                        if (politica.hayAlguienParaDespertar(VectorAnd)) {
+                            Integer locker = politica.getLock(VectorAnd);
+                            int t = locker.intValue();
+                            this.log.registrar(this, transicion, true, mapa.get(locker), tiempo,0);
+                            VectorEncolados.getMatriz()[0][t] = 0;
+                            while (mapa.get(locker).getState() != Thread.State.WAITING) {
+                                Thread.currentThread().sleep(1);
+                                System.err.println("Esperando que se duerma para despertarlo : " + mapa.get(locker).getNombre());
+                            }
+                            synchronized (locker) {
+                                locker.notifyAll();
+                                return;
+                            }
+                        } else {
+                            this.log.registrar(this, transicion, true, null, tiempo,0);
+                            k = false;
                         }
                     } else {
-                        this.log.registrar(this, transicion, true, null,tiempo);
-                        k = false;
-                    }
-                } else {
-                    if(!getPetri().transicionSensibilizada(transicion,getPetri().getVectorSensibilizadas())){
-                        VectorEncolados.getMatriz()[0][transicion] = 1;
-                        this.log.registrar(this, transicion, false, null,tiempo);
-                        synchronized (transicion) {
-                            this.log.escribir("No estaba sensibilizado", this.log.getRegistro());
-                            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex", this.log.getRegistro());
-                            this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", this.log.getRegistro());
-                            mutex.release();
-                            transicion.wait();
-                        }
-                    }
-                    else{
-                        long diferencia = tiempo-getPetri().getTimeStamp()[transicion]+getPetri().getAlfa()[transicion]*getPetri().unidadTiempo;
-                        if(diferencia<0){
-                            this.log.escribir("Esperando por disparar", this.log.getRegistro());
-                            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex", this.log.getRegistro());
-                            this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", this.log.getRegistro());
-                            mutex.release();
-                            sleep(diferencia*-1);
-                        }
-                        else{
-                            diferencia = tiempo-getPetri().getTimeStamp()[transicion]+getPetri().getBeta()[transicion]*getPetri().unidadTiempo;
-                            if(diferencia>0){
-                                VectorEncolados.getMatriz()[0][transicion] = 1;
-                                this.log.registrar(this, transicion, false, null,tiempo);
-                                synchronized (transicion) {
-                                    this.log.escribir("Expiro el tiempo de sensibilidad", this.log.getRegistro());
-                                    this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex", this.log.getRegistro());
-                                    this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", this.log.getRegistro());
-                                    mutex.release();
-                                    transicion.wait();
+                        if (!getPetri().transicionSensibilizada(transicion, getPetri().getVectorSensibilizadas())) {
+                            encolar(transicion,tiempo,1);
+                        } else {
+                            diferencia = tiempo - (getPetri().getTimeStamp()[transicion] + getPetri().getAlfa()[transicion] * getPetri().unidadTiempo);
+                            if (diferencia < 0) {
+                                getPetri().setAutorizado(((Hilo) (Thread.currentThread())).getNombre(), transicion);
+                                this.log.registrar(this, transicion, false, null, tiempo,2);
+                                Thread.currentThread().sleep(diferencia * -1);
+                                volverADisparar = true;
+                                //break;
+                                k = false;
+                            } else {
+                                diferencia = tiempo - (getPetri().getTimeStamp()[transicion] + getPetri().getBeta()[transicion] * getPetri().unidadTiempo);
+                                if (diferencia > 0) {
+                                    encolar(transicion,tiempo,3);
+                                } else {
+                                    encolar(transicion,tiempo,4);
                                 }
-                            }
-                            else{
-                                VectorEncolados.getMatriz()[0][transicion] = 1;
-                                this.log.registrar(this, transicion, false, null,tiempo);
-                                synchronized (transicion) {
-                                    this.log.escribir("No esta autorizado para disparar", this.log.getRegistro());
-                                    this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex", this.log.getRegistro());
-                                    this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", this.log.getRegistro());
-                                    mutex.release();
-                                    transicion.wait();
-                                }
-
                             }
                         }
                     }
                 }
+                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex", this.log.getRegistro());
+                this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", this.log.getRegistro());
+                mutex.release();
+                if(volverADisparar){
+                    this.log.escribir(((Hilo) (Thread.currentThread())).getNombre()+" procede a dormir", this.log.getRegistro());
+                    Thread.currentThread().sleep(diferencia * -1);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println(e.getMessage() + "----");
             }
-            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex", this.log.getRegistro());
-            this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", this.log.getRegistro());
-            mutex.release();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println(e.getMessage() + "----");
+
         }
+        while (volverADisparar);
+
     }
 
     public void mapeo(Hilo hilo) {
@@ -174,4 +153,26 @@ public class Monitor {
         return this.VectorAnd;
     }
 
+    public void encolar(Integer transicion, long tiempo,int resultado) {
+        this.VectorEncolados.getMatriz()[0][transicion] = 1;
+        this.log.registrar(this, transicion, false, null, tiempo, resultado);
+        synchronized (transicion) {
+            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex", this.log.getRegistro());
+            this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", this.log.getRegistro());
+            mutex.release();
+            try {
+                transicion.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public int getContadorSolicitud() {
+        return this.contadorSolicitud;
+    }
+
+    public Politica getPolitica() {
+        return politica;
+    }
 }
