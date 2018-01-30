@@ -60,7 +60,7 @@ public class HiloTest {
 
             String [] cast =  historialDisparos.get(i).split("la transicion  : ");
             String nombreTransicion = cast[1].trim();
-            assertTrue(this.historialSolicitudes.get(i) ,
+            assertTrue(this.historialSolicitudes.get(i)+"\n"+"Tuvo que disparar "+this.nombreTransiciones.get(indice).get(contadoresDeDisparos[indice]%this.nombreTransiciones.get(indice).size()),
                     (this.nombreTransiciones.get(indice).get(contadoresDeDisparos[indice]%this.nombreTransiciones.get(indice).size())).equals(nombreTransicion));
             if (historialResultadoDeSolicitud.get(i)){
                 contadoresDeDisparos[indice] = contadoresDeDisparos[indice]+1;
