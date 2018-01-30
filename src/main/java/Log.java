@@ -456,7 +456,7 @@ public class Log {
         for (String linea :
                 lineasLeidas) {
             cast = linea.split(":");
-            motivos.add(cast[1].trim());
+            motivos.add(cast[1]);
         }
         return motivos;
     }

@@ -30,12 +30,13 @@ Test
 
 Politica
     - los arreglos equilibrio, etc, que se armen de acuerd  a LectorTina
-RdP
-    -Que no haga falta castear el Thread.currentThread como hilo: pasarle el nombre del Hilo en el disparo
-     o que se pueda deshabilitar con un booleano la comprobacion de autorizado para devolver true
 Hilo
     - Que de error al querer ponerle un nombre a un hilo ya usado
 
 Patrones graficos
     -Averiguar que poronga es esto y usarlo
+EnumLog
+    -Pasar a tipo enum todos los string usados en Log
+
+P invariantes y T invariantes TEST
  */

@@ -94,17 +94,18 @@ public class RdPTest {
     public void pInvariantes() throws Exception {
         /*
         No está sacado como producto punto, sino como producto vectorial
-         *//*
+         */
         // POR AHÍ CONVIENE LLAMARLO MATRIZ DE PINVARIANTES Y NO PINVARIANTE
+        Matriz resultadoPInv= new Matriz(this.lectorPipe.getResultadoPInvariantes());
+        Matriz PInvariantes = new Matriz((this.lectorPipe.getPInvariantes()));
         System.out.println("Matriz de resultado de los P Invariantes = ");
-        System.out.println(constantes.resultadoPInv);
-
+        System.out.println(resultadoPInv);
         for (int i = 0; i < historialMarcados.size(); i++) {
             //assertEquals(constantes.resultadoPInv,Matriz.multiplicacion(constantes.PInvariante,historialMarcados.get(i)));
-            Matriz resultado = Matriz.multiplicacion(constantes.PInvariante,historialMarcados.get(i));
+            Matriz resultado = Matriz.multiplicacion(PInvariantes,historialMarcados.get(i));
 
             assertTrue(historialContador.get(i)+"\n"+this.historialHilos.get(i)+"\n"+resultado,
-                    resultado.esIgual(constantes.resultadoPInv));
-        }*/
+                    resultado.esIgual(resultadoPInv));
+        }
     }
 }

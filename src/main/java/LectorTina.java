@@ -1,7 +1,9 @@
 import java.io.*;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import java.util.regex.Matcher;
@@ -91,6 +93,45 @@ public class LectorTina {
         return beta;
     }
 
+    public List<String> getLineasStruct(){
+        return this.LineasStruct;
+    }
+
+    public List<String> extraerLineas(String desde, String hasta){
+        boolean leyendo=false;
+        List<String> lineas = new ArrayList<String>();
+        for (String linea :
+                this.getLineasStruct()) {
+            if(linea.contains(hasta)){
+                break;
+            }
+            if(leyendo&&linea.trim().length()!=0){
+                lineas.add(linea.trim());
+            }
+            if(linea.contains(desde)){
+                leyendo=true;
+            }
+        }
+        return lineas;
+    }
+
+    public List<String> getLineasTInvariantes(){
+        List<String> tInvariantes = this.extraerLineas("T-SEMI-FLOWS GENERATING","ANALYSIS COMPLETED");
+        tInvariantes.remove(0);
+        tInvariantes.remove(tInvariantes.size()-1);
+        return tInvariantes;
+    }
+
+    public List<List<String>> getTInvariantes(){
+        List<List<String>> listasTInvariantes = new ArrayList<>();
+        for (String lineaT :
+                getLineasTInvariantes()) {
+            List<String> transiciones = new ArrayList<>(Arrays.asList(lineaT.split(" ")));
+            listasTInvariantes.add(transiciones);
+        }
+        return listasTInvariantes;
+    }
+
     public static void main(String[] args){
         LectorTina lectorTina = new LectorTina(new LectorPipe());
 
@@ -103,5 +144,14 @@ public class LectorTina {
                 lectorTina.getArregloBeta()) {
             System.out.println(entero);
         }
+        for (List<String> tinv :
+                lectorTina.getTInvariantes()) {
+            for (String transicion :
+                    tinv) {
+                System.out.print(transicion+ " -- ");
+            }
+            System.out.println("Tamaño = "+ tinv.size());
+        }
     }
+
 }
