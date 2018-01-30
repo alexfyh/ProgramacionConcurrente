@@ -129,7 +129,7 @@ public class Log {
             cadena = "  no ha podido disparar la transicion  : ";
         }
         escribir(((Hilo) (Thread.currentThread())).getNombre() + cadena + traducirDisparo(transicion), this.getRegistro());
-        escribir("\n" + this.resultadosDisparo[resultado], this.getRegistro());
+        escribir("\n" + "Motivo : " + this.resultadosDisparo[resultado], this.getRegistro());
     }
 
     public synchronized void registrarBasico2(Monitor m, Matriz sensi, Matriz enco) {
@@ -138,12 +138,12 @@ public class Log {
         escribir(this.getMarcadosImprimibles(), this.getRegistro());
         escribir(m.getPetri().marcadoActual().toString() + "\n", this.getRegistro());
         escribir("\n", this.getRegistro());
-        escribir(printHilosDeVector("Hilos Sensibilizados  =  ", sensi,m), this.getRegistro());
-        escribir(printHilosDeVector("Hilos Encolados  =  ", enco,m), this.getRegistro());
+        escribir(printHilosDeVector("Hilos Sensibilizados  =  ", sensi, m), this.getRegistro());
+        escribir(printHilosDeVector("Hilos Encolados  =  ", enco, m), this.getRegistro());
     }
 
     public synchronized void registrarEXtendido(Monitor m, Matriz and, Hilo h) {
-        escribir(printHilosDeVector("Hilos en ambas  =  ", and,m), this.getRegistro());
+        escribir(printHilosDeVector("Hilos en ambas  =  ", and, m), this.getRegistro());
         if (h != null) {
             escribir("Hilo despertado  =  " + h.getNombre(), this.getRegistro());
         } else {
@@ -437,7 +437,8 @@ public class Log {
         }
         return lineas;
     }
-    public String printHilosDeVector(String inicio, Matriz Vector,Monitor monitor) {
+
+    public String printHilosDeVector(String inicio, Matriz Vector, Monitor monitor) {
         String cadena = inicio;
         for (int i = 0; i < Vector.getN(); i++) {
             if (Vector.getMatriz()[0][i] != 0) {
@@ -446,5 +447,17 @@ public class Log {
             }
         }
         return cadena;
+    }
+
+    public List<String> getHistorialMotivos() {
+        List<String> motivos = new ArrayList<String>();
+        List<String> lineasLeidas = extraerLineas("Motivo : ", 0);
+        String[] cast;
+        for (String linea :
+                lineasLeidas) {
+            cast = linea.split(":");
+            motivos.add(cast[1].trim());
+        }
+        return motivos;
     }
 }
