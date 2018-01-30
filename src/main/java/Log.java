@@ -138,12 +138,12 @@ public class Log {
         escribir(this.getMarcadosImprimibles(), this.getRegistro());
         escribir(m.getPetri().marcadoActual().toString() + "\n", this.getRegistro());
         escribir("\n", this.getRegistro());
-        escribir(m.printHilosDeVector("Hilos Sensibilizados  =  ", sensi), this.getRegistro());
-        escribir(m.printHilosDeVector("Hilos Encolados  =  ", enco), this.getRegistro());
+        escribir(printHilosDeVector("Hilos Sensibilizados  =  ", sensi,m), this.getRegistro());
+        escribir(printHilosDeVector("Hilos Encolados  =  ", enco,m), this.getRegistro());
     }
 
     public synchronized void registrarEXtendido(Monitor m, Matriz and, Hilo h) {
-        escribir(m.printHilosDeVector("Hilos en ambas  =  ", and), this.getRegistro());
+        escribir(printHilosDeVector("Hilos en ambas  =  ", and,m), this.getRegistro());
         if (h != null) {
             escribir("Hilo despertado  =  " + h.getNombre(), this.getRegistro());
         } else {
@@ -436,5 +436,15 @@ public class Log {
             }
         }
         return lineas;
+    }
+    public String printHilosDeVector(String inicio, Matriz Vector,Monitor monitor) {
+        String cadena = inicio;
+        for (int i = 0; i < Vector.getN(); i++) {
+            if (Vector.getMatriz()[0][i] != 0) {
+                cadena = cadena + monitor.getMapa().get(i).getNombre();
+                cadena = cadena + " || ";
+            }
+        }
+        return cadena;
     }
 }

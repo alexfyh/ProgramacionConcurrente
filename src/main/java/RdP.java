@@ -65,7 +65,7 @@ public class RdP {
         return this.contadorSolicitud;
     }
 
-    public boolean disparar(int x, long tiempo,String nombre) throws Exception {
+    public boolean disparar(int x, long tiempo, String nombre) throws Exception {
         try {
             if (x < 0 || x > this.incidencia.getMatriz()[0].length) {
                 throw new Exception("Transicion no valida.");

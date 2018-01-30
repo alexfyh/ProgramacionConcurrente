@@ -24,6 +24,7 @@ public class Monitor {
             return Monitor.UniqueInstance;
         }
     }
+
     private Monitor(int pol) {
         try {
             mutex = new Semaphore(1, true);
@@ -67,8 +68,6 @@ public class Monitor {
                     k = petri.disparar(transicion, tiempo,((Hilo) (Thread.currentThread())).getNombre());
                     if (k == true) {
                         this.politica.incrementarDisparoDeTransicion(transicion);
-                        // Sin esta linea no se actualiza porque direcciona a un viejo VectorSensibilizada
-                        //VectorSensibilizados = getPetri().getVectorSensibilizadas();
                         VectorAnd.and(this.getPetri().getVectorSensibilizadas(), VectorEncolados);
                         if (politica.hayAlguienParaDespertar(VectorAnd)) {
                             Integer locker = politica.getLock(VectorAnd);
@@ -124,7 +123,6 @@ public class Monitor {
 
         }
         while (volverADisparar);
-
     }
 
     public void mapeo(Hilo hilo) {
@@ -138,15 +136,8 @@ public class Monitor {
         return this.petri;
     }
 
-    public String printHilosDeVector(String inicio, Matriz Vector) {
-        String cadena = inicio;
-        for (int i = 0; i < Vector.getN(); i++) {
-            if (Vector.getMatriz()[0][i] != 0) {
-                cadena = cadena + mapa.get(i).getNombre();
-                cadena = cadena + " || ";
-            }
-        }
-        return cadena;
+    public Map<Integer,Hilo> getMapa(){
+        return this.mapa;
     }
 
     public Matriz getVectorEncolados() {
