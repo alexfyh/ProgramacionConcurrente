@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Hilo extends Thread {
@@ -5,8 +6,13 @@ public class Hilo extends Thread {
     final String nombre;
     final Monitor monitor;
     final List<Integer> enteros;
+    static List<String> nombresUsados = new ArrayList<>();
 
-    public Hilo(String nombre, List<Integer> enteros,int pol) {
+    public Hilo(String nombre, List<Integer> enteros,int pol) throws Exception {
+        if(Hilo.nombresUsados.contains(nombre)){
+            throw new Exception("Nombre "+ nombre+ " ya ha sido usado.");
+        }
+        Hilo.nombresUsados.add(nombre);
         this.nombre = nombre;
         this.monitor = Monitor.getUniqueInstance(pol);
         this.enteros = enteros;

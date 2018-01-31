@@ -12,7 +12,7 @@ public class RdP {
     private int[] beta;
     private long[] timeStamp;
     private long startTime;
-    public final int unidadTiempo = 100;
+    public final int unidadTiempo = 10;
 
     private String[] autorizados;
 

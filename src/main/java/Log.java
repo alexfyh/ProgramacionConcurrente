@@ -82,14 +82,14 @@ public class Log {
         this.registro = new File(direccionRegistro);
     }
 
-    public synchronized void registrarHilo(Hilo h) {
-        this.escribir("Nombre de Hilo = " + h.getNombre(), this.registro);
-        String transiciones = "";
+    public synchronized void registrarHilo(String nombre, List<Integer> transiciones) {
+        this.escribir("Nombre de Hilo = " + nombre, this.registro);
+        String cadenas = "";
         for (Integer i :
-                h.getTransiciones()) {
-            transiciones = transiciones + traducirDisparo(i) + " - ";
+                transiciones) {
+            cadenas = cadenas + traducirDisparo(i) + " - ";
         }
-        this.escribir(transiciones, this.registro);
+        this.escribir(cadenas, this.registro);
     }
 
     public String traducirDisparo(int i) {
@@ -442,7 +442,7 @@ public class Log {
         String cadena = inicio;
         for (int i = 0; i < Vector.getN(); i++) {
             if (Vector.getMatriz()[0][i] != 0) {
-                cadena = cadena + monitor.getMapa().get(i).getNombre();
+                cadena = cadena + monitor.getPolitica().getMapa().get(i).getNombre();
                 cadena = cadena + " || ";
             }
         }

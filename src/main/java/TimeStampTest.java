@@ -38,5 +38,8 @@ Patrones graficos
 EnumLog
     -Pasar a tipo enum todos los string usados en Log
 
+Produccion C
+    - Despierto al hilo cuando est{a sensibilizado o cuando ya está dentro de la ventana?
+
 P invariantes y T invariantes TEST
  */

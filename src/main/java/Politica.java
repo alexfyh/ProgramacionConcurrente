@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -15,11 +16,12 @@ public abstract class Politica {
     protected int[] lineaDeProduccion;
 
 
-    public Politica(Map<Integer, Hilo> mapa, LectorPipe lectorPipe) {
+    public Politica(LectorPipe lectorPipe) {
+        this.secuencia=equilibrio;
         this.arregloTInvariante = lectorPipe.getTInvariantes();
         this.DisparosPorTransicion = new int[arregloTInvariante[0].length];
         this.lineaDeProduccion = new int[arregloTInvariante.length];
-        this.mapa = mapa;
+        this.mapa = new HashMap<Integer, Hilo>();
         try {
             Vista ventana = new Vista(this);
             this.v = ventana;
@@ -80,4 +82,14 @@ public abstract class Politica {
         }
     }
 
+    public void registrarHilo(Hilo hilo) {
+        for (Integer i : hilo.getTransiciones()) {
+            this.mapa.put(i, hilo);
+        }
+        Monitor.getUniqueInstance(0).getLog().registrarHilo(hilo.getNombre(),hilo.getTransiciones());
+    }
+
+    public Map<Integer,Hilo> getMapa(){
+        return this.mapa;
+    }
 }

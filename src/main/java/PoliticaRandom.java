@@ -1,15 +1,13 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by YepezHinostroza on 14/11/2017.
  */
 public class PoliticaRandom extends Politica {
 
-    public PoliticaRandom(Map<Integer, Hilo> mapa, LectorPipe lectorPipe) {
-        super(mapa, lectorPipe);
-        this.mapa = mapa;
+    public PoliticaRandom(LectorPipe lectorPipe) {
+        super(lectorPipe);
         this.v.setVisible(false);
     }
 

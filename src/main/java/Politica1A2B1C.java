@@ -1,11 +1,9 @@
-import java.util.Map;
-
 /**
  * Created by YepezHinostroza on 25/10/2017.
  */
 public class Politica1A2B1C extends Politica {
-    public Politica1A2B1C(Map<Integer, Hilo> mapa, LectorPipe lectorPipe) {
-        super(mapa, lectorPipe);
+    public Politica1A2B1C(LectorPipe lectorPipe) {
+        super(lectorPipe);
     }
 
     public Integer getLock(Matriz VectorAnd) {
