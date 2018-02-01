@@ -22,16 +22,11 @@ public class TimeStampTest {
 
 /*
 
-LectorTina
-    -Definir si usar los [ ]
-    -Extraer los T invariantes
 Test
     -tener cuidado si no uso el ling tiempo
 
 Politica
     - los arreglos equilibrio, etc, que se armen de acuerd  a LectorTina
-Hilo
-    - Que de error al querer ponerle un nombre a un hilo ya usado
 
 Patrones graficos
     -Averiguar que poronga es esto y usarlo

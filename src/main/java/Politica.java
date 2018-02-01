@@ -1,4 +1,7 @@
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -6,10 +9,11 @@ import java.util.Map;
  */
 public abstract class Politica {
     protected Map<Integer, Hilo> mapa;
-    protected int[] secuencia;
-    protected int[] equilibrio = {14, 15, 16, 17, 18, 19, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
-    protected int[] preferenciaB = {10, 11, 12, 13, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16, 17, 18, 19};
-    protected int[] preferenciaA = {11, 12, 13, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 15, 16, 17, 18, 19};
+    protected List<Integer> secuencia;
+    protected List<Integer> equilibrio;
+    protected List<Integer> preferenciaB;
+    protected List<Integer> preferenciaA;
+
     protected Vista v;
     protected int[][] arregloTInvariante;
     protected int[] DisparosPorTransicion;
@@ -17,7 +21,19 @@ public abstract class Politica {
 
 
     public Politica(LectorPipe lectorPipe) {
-        this.secuencia=equilibrio;
+        LectorTina lectorTina = new LectorTina(lectorPipe);
+        List<Integer> secuenciaA1 = lectorTina.getListaTInvariantes().get(0);
+        List<Integer> secuenciaA2 = lectorTina.getListaTInvariantes().get(1);
+        List<Integer> secuenciaB = lectorTina.getListaTInvariantes().get(2);
+        List<Integer> secuenciaC = lectorTina.getListaTInvariantes().get(3);
+
+        preferenciaA=concatenar(concatenar(concatenar(secuenciaA1,secuenciaA2),secuenciaB),secuenciaC);
+        System.out.println(preferenciaA);
+        preferenciaB=concatenar(concatenar(concatenar(secuenciaB,secuenciaC),secuenciaA2),secuenciaA1);
+        System.out.println(preferenciaB);
+        equilibrio=concatenar(concatenar(concatenar(secuenciaC,secuenciaB),secuenciaA1),secuenciaA2);
+        System.out.println(equilibrio);
+        secuencia=equilibrio;
         this.arregloTInvariante = lectorPipe.getTInvariantes();
         this.DisparosPorTransicion = new int[arregloTInvariante[0].length];
         this.lineaDeProduccion = new int[arregloTInvariante.length];
@@ -45,7 +61,6 @@ public abstract class Politica {
 
     public void incrementarDisparoDeTransicion(int transicion) {
         this.DisparosPorTransicion[transicion] = this.DisparosPorTransicion[transicion] + 1;
-
         for (int i = 0; i < this.arregloTInvariante.length; i++) {
             boolean lineaCompleta = true;
             for (int j = 0; j < this.arregloTInvariante[0].length; j++) {
@@ -58,7 +73,6 @@ public abstract class Politica {
                 lineaDeProduccion[i] = lineaDeProduccion[i] + 1;
                 for (int indice = 0; indice < DisparosPorTransicion.length; indice++) {
                     this.DisparosPorTransicion[indice] = this.DisparosPorTransicion[indice] - this.arregloTInvariante[i][indice];
-
                 }
                 actualizarVista();
             }
@@ -74,7 +88,7 @@ public abstract class Politica {
         v.repaint();
     }
 
-    public boolean hayAlguienParaDespertar(Matriz And){
+    public boolean hayAlguienParaDespertar(Matriz And) {
         if (And.cantidadDeUnos() > 0) {
             return true;
         } else {
@@ -86,10 +100,17 @@ public abstract class Politica {
         for (Integer i : hilo.getTransiciones()) {
             this.mapa.put(i, hilo);
         }
-        Monitor.getUniqueInstance(0).getLog().registrarHilo(hilo.getNombre(),hilo.getTransiciones());
+        Monitor.getUniqueInstance(0).getLog().registrarHilo(hilo.getNombre(), hilo.getTransiciones());
     }
 
-    public Map<Integer,Hilo> getMapa(){
+    public Map<Integer, Hilo> getMapa() {
         return this.mapa;
+    }
+
+    public List<Integer> concatenar(List<Integer> primera, List<Integer> segunda) {
+        List<Integer> nueva = new ArrayList<>(primera);
+        List<Integer> continuacion = new ArrayList<>(segunda);
+        nueva.addAll(continuacion);
+        return nueva;
     }
 }
