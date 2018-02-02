@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="ca6bde16-d065-43db-9449-48145c0e00c1" name="Default" comment="Hilos sin el mismo nombre&#10;y monitor sin mapa&#10;Politica se encarga de devolver Integer">
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/main.iml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/resources/jsoup-1.10.3.jar" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/test/test.iml" />
+    <list default="true" id="ca6bde16-d065-43db-9449-48145c0e00c1" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/PetriNet/analisisInvariante.html" afterPath="$PROJECT_DIR$/PetriNet/analisisInvariante.html" />
-      <change beforePath="$PROJECT_DIR$/PetriNet/incidenciaYmarcado.html" afterPath="$PROJECT_DIR$/PetriNet/incidenciaYmarcado.html" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Politica.java" afterPath="$PROJECT_DIR$/src/main/java/Politica.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Politica3A2B1C.java" afterPath="$PROJECT_DIR$/src/main/java/Politica3A2B1C.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/TimeStampTest.java" afterPath="$PROJECT_DIR$/src/main/java/TimeStampTest.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -599,7 +591,14 @@
       <option name="project" value="LOCAL" />
       <updated>1517527642791</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Pobando preferencias de politicas">
+      <created>1517535890139</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1517535890139</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -675,7 +674,8 @@
     <MESSAGE value="laralara" />
     <MESSAGE value="Ni idea qu{e comentar" />
     <MESSAGE value="Hilos sin el mismo nombre&#10;y monitor sin mapa&#10;Politica se encarga de devolver Integer" />
-    <option name="LAST_COMMIT_MESSAGE" value="Hilos sin el mismo nombre&#10;y monitor sin mapa&#10;Politica se encarga de devolver Integer" />
+    <MESSAGE value="Pobando preferencias de politicas" />
+    <option name="LAST_COMMIT_MESSAGE" value="Pobando preferencias de politicas" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
