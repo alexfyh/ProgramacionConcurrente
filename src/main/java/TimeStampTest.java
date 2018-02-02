@@ -1,3 +1,5 @@
+import javax.rmi.ssl.SslRMIClientSocketFactory;
+
 import static java.lang.Thread.sleep;
 
 public class TimeStampTest {
@@ -16,6 +18,10 @@ public class TimeStampTest {
         int maximo = Integer.MAX_VALUE;
         long time = 318L;
         System.out.println("resultado" +maximo*100+0);
+
+        RdP petri = new RdP();
+        LectorTina tina = new LectorTina(petri.getLectorPipe());
+        System.out.println(tina.getListaTInvariantes());
 
     }
 }

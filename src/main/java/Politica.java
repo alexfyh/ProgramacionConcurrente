@@ -27,11 +27,11 @@ public abstract class Politica {
         List<Integer> secuenciaB = lectorTina.getListaTInvariantes().get(2);
         List<Integer> secuenciaC = lectorTina.getListaTInvariantes().get(3);
 
-        preferenciaA=concatenar(concatenar(concatenar(secuenciaA1,secuenciaA2),secuenciaB),secuenciaC);
+        preferenciaA=concatenar(concatenar(concatenar(secuenciaA2,secuenciaA1),secuenciaC),secuenciaB);
         System.out.println(preferenciaA);
         preferenciaB=concatenar(concatenar(concatenar(secuenciaB,secuenciaC),secuenciaA2),secuenciaA1);
         System.out.println(preferenciaB);
-        equilibrio=concatenar(concatenar(concatenar(secuenciaC,secuenciaB),secuenciaA1),secuenciaA2);
+        equilibrio=concatenar(concatenar(concatenar(secuenciaC,secuenciaA1),secuenciaA2),secuenciaB);
         System.out.println(equilibrio);
         secuencia=equilibrio;
         this.arregloTInvariante = lectorPipe.getTInvariantes();

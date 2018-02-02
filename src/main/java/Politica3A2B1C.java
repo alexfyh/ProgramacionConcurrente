@@ -7,7 +7,7 @@ public class Politica3A2B1C extends Politica {
     }
 
     public Integer getLock(Matriz VectorAnd) {
-        this.secuencia=preferenciaA;
+        this.secuencia=equilibrio;
 
         for (int i = 0; i < this.secuencia.size(); i++) {
             if (VectorAnd.getMatriz()[0][secuencia.get(i)] != 0) {
