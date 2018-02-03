@@ -29,15 +29,15 @@ public class ListasDeDisparos {
 
         l1.add(10);
         l1.add(11);
+        l1.add(12);
 
-        l2.add(12);
         l2.add(13);
 
         l3.add(0);
 
         l4.add(1);
+        l4.add(3);
 
-        l5.add(3);
         l5.add(5);
         l5.add(7);
 
@@ -48,14 +48,14 @@ public class ListasDeDisparos {
 
         l7.add(9);
 
-        l8.add(18);
+        //l8.add(18);
         l8.add(19);
 
         l9.add(14);
         l9.add(15);
         l9.add(16);
         l9.add(17);
-        //l9.add(18);
+        l9.add(18);
     }
 
     public ArrayList getLista(ArrayList a) {

@@ -1,4 +1,3 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,8 +10,9 @@ public abstract class Politica {
     protected Map<Integer, Hilo> mapa;
     protected List<Integer> secuencia;
     protected List<Integer> equilibrio;
-    protected List<Integer> preferenciaB;
-    protected List<Integer> preferenciaA;
+    protected List<Integer> secuencia1A1B;
+    protected List<Integer> secuencia1A2B1C;
+    protected List<Integer> secuencia2A1B1C;
 
     protected Vista v;
     protected int[][] arregloTInvariante;
@@ -22,16 +22,19 @@ public abstract class Politica {
 
     public Politica(LectorPipe lectorPipe) {
         LectorTina lectorTina = new LectorTina(lectorPipe);
-        List<Integer> secuenciaA1 = lectorTina.getListaTInvariantes().get(0);
-        List<Integer> secuenciaA2 = lectorTina.getListaTInvariantes().get(1);
-        List<Integer> secuenciaB = lectorTina.getListaTInvariantes().get(2);
-        List<Integer> secuenciaC = lectorTina.getListaTInvariantes().get(3);
+        List<Integer> invarianteA1 = lectorTina.getListaTInvariantes().get(0);
+        List<Integer> invarianteA2 = lectorTina.getListaTInvariantes().get(1);
+        List<Integer> invarianteB = lectorTina.getListaTInvariantes().get(2);
+        List<Integer> invarianteC = lectorTina.getListaTInvariantes().get(3);
 
-        preferenciaA=concatenar(concatenar(concatenar(secuenciaA2,secuenciaA1),secuenciaC),secuenciaB);
-        System.out.println(preferenciaA);
-        preferenciaB=concatenar(concatenar(concatenar(secuenciaB,secuenciaC),secuenciaA2),secuenciaA1);
-        System.out.println(preferenciaB);
-        equilibrio=concatenar(concatenar(concatenar(secuenciaC,secuenciaA1),secuenciaA2),secuenciaB);
+        secuencia1A2B1C =concatenar(concatenar(concatenar(invarianteC,invarianteB),invarianteA1),invarianteA2);
+        System.out.println(secuencia1A2B1C);
+        secuencia1A1B =concatenar(concatenar(concatenar(invarianteB,invarianteC),invarianteA2),invarianteA1);
+        System.out.println(secuencia1A1B);
+        secuencia2A1B1C =concatenar(concatenar(concatenar(invarianteB,invarianteC),invarianteA2),invarianteA1);
+        System.out.println(secuencia1A1B);
+        equilibrio=concatenar(concatenar(concatenar(invarianteA1,invarianteA2),invarianteC),invarianteB);
+        //equilibrio=concatenar(concatenar(concatenar(invarianteA1,invarianteA2),invarianteB),invarianteC);
         System.out.println(equilibrio);
         secuencia=equilibrio;
         this.arregloTInvariante = lectorPipe.getTInvariantes();
@@ -55,6 +58,7 @@ public abstract class Politica {
                 return i;
             }
         }
+        System.err.println("No estoy devolviendo nada");
         //Deberpia tirar una excepción por si falla, pero me la soba a estas alturas
         return null;
     }
