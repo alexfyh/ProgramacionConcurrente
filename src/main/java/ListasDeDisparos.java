@@ -25,37 +25,34 @@ public class ListasDeDisparos {
         l6 = new ArrayList<Integer>();
         l7 = new ArrayList<Integer>();
         l8 = new ArrayList<Integer>();
-        l9 = new ArrayList<Integer>();
 
         l1.add(10);
         l1.add(11);
         l1.add(12);
+        l1.add(13);
 
-        l2.add(13);
+        l2.add(0);
 
-        l3.add(0);
+        l3.add(1);
+        l3.add(3);
 
-        l4.add(1);
-        l4.add(3);
+        l4.add(5);
+        l4.add(7);
 
-        l5.add(5);
-        l5.add(7);
+        l5.add(2);
+        l5.add(4);
+        l5.add(6);
+        l5.add(8);
 
-        l6.add(2);
-        l6.add(4);
-        l6.add(6);
-        l6.add(8);
+        l6.add(9);
 
-        l7.add(9);
+        l7.add(19);
 
-        //l8.add(18);
-        l8.add(19);
-
-        l9.add(14);
-        l9.add(15);
-        l9.add(16);
-        l9.add(17);
-        l9.add(18);
+        l8.add(14);
+        l8.add(15);
+        l8.add(16);
+        l8.add(17);
+        l8.add(18);
     }
 
     public ArrayList getLista(ArrayList a) {

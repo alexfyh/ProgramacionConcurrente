@@ -4,7 +4,6 @@
 public class Politica1A2B1C extends Politica {
     public Politica1A2B1C(LectorPipe lectorPipe) {
         super(lectorPipe);
-        //this.secuencia=secuencia1B1C;
     }
 
     public Integer getLock(Matriz VectorAnd) {

@@ -11,6 +11,7 @@ public abstract class Politica {
     protected List<Integer> secuencia;
     protected List<Integer> equilibrio;
     protected List<Integer> secuencia1A1B;
+    protected List<Integer> secuencia3A2B1C;
     protected List<Integer> secuencia1A2B1C;
     protected List<Integer> secuencia2A1B1C;
 
@@ -27,16 +28,8 @@ public abstract class Politica {
         List<Integer> invarianteB = lectorTina.getListaTInvariantes().get(2);
         List<Integer> invarianteC = lectorTina.getListaTInvariantes().get(3);
 
-        secuencia1A2B1C =concatenar(concatenar(concatenar(invarianteC,invarianteB),invarianteA1),invarianteA2);
-        System.out.println(secuencia1A2B1C);
-        secuencia1A1B =concatenar(concatenar(concatenar(invarianteB,invarianteC),invarianteA2),invarianteA1);
-        System.out.println(secuencia1A1B);
-        secuencia2A1B1C =concatenar(concatenar(concatenar(invarianteB,invarianteC),invarianteA2),invarianteA1);
-        System.out.println(secuencia1A1B);
-        equilibrio=concatenar(concatenar(concatenar(invarianteA1,invarianteA2),invarianteC),invarianteB);
-        //equilibrio=concatenar(concatenar(concatenar(invarianteA1,invarianteA2),invarianteB),invarianteC);
-        System.out.println(equilibrio);
-        secuencia=equilibrio;
+        secuencia3A2B1C=concatenar(concatenar(concatenar(invarianteB,invarianteC),invarianteA2),invarianteA1);
+        secuencia1A2B1C=concatenar(concatenar(concatenar(invarianteB,invarianteC),invarianteA1),invarianteA2);
         this.arregloTInvariante = lectorPipe.getTInvariantes();
         this.DisparosPorTransicion = new int[arregloTInvariante[0].length];
         this.lineaDeProduccion = new int[arregloTInvariante.length];
