@@ -28,8 +28,8 @@ public abstract class Politica {
         List<Integer> invarianteB = lectorTina.getListaTInvariantes().get(2);
         List<Integer> invarianteC = lectorTina.getListaTInvariantes().get(3);
 
-        secuencia3A2B1C=concatenar(concatenar(concatenar(invarianteB,invarianteC),invarianteA2),invarianteA1);
-        secuencia1A2B1C=concatenar(concatenar(concatenar(invarianteB,invarianteC),invarianteA1),invarianteA2);
+        secuencia3A2B1C=concatenar(concatenar(concatenar(invarianteA2,invarianteA1),invarianteB),invarianteC);
+        secuencia1A2B1C=concatenar(concatenar(concatenar(invarianteA2,invarianteA1),invarianteB),invarianteC);
         this.arregloTInvariante = lectorPipe.getTInvariantes();
         this.DisparosPorTransicion = new int[arregloTInvariante[0].length];
         this.lineaDeProduccion = new int[arregloTInvariante.length];

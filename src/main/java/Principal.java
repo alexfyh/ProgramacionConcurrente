@@ -21,13 +21,13 @@ public class Principal {
             Monitor monitor = Monitor.getUniqueInstance(politica);
 
             Hilo h1 = new Hilo("Hilo 1", listas.l1, politica);
-            Hilo h2 = new Hilo("Hilo 3", listas.l2, politica);
-            Hilo h3 = new Hilo("Hilo 4", listas.l3, politica);
-            Hilo h4 = new Hilo("Hilo 5", listas.l4, politica);
-            Hilo h5 = new Hilo("Hilo 6", listas.l5, politica);
-            Hilo h6 = new Hilo("Hilo 7", listas.l6, politica);
-            Hilo h7 = new Hilo("Hilo 8", listas.l7, politica);
-            Hilo h8 = new Hilo("Hilo 9", listas.l8, politica);
+            Hilo h2 = new Hilo("Hilo 2", listas.l2, politica);
+            Hilo h3 = new Hilo("Hilo 3", listas.l3, politica);
+            Hilo h4 = new Hilo("Hilo 4", listas.l4, politica);
+            Hilo h5 = new Hilo("Hilo 5", listas.l5, politica);
+            Hilo h6 = new Hilo("Hilo 6", listas.l6, politica);
+            Hilo h7 = new Hilo("Hilo 7", listas.l7, politica);
+            Hilo h8 = new Hilo("Hilo 8", listas.l8, politica);
 
             monitor.getPolitica().registrarHilo(h1);
             monitor.getPolitica().registrarHilo(h2);
