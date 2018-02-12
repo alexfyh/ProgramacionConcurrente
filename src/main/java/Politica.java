@@ -10,10 +10,11 @@ public abstract class Politica {
     protected Map<Integer, Hilo> mapa;
     protected List<Integer> secuencia;
     protected List<Integer> equilibrio;
-    protected List<Integer> secuencia1A1B;
     protected List<Integer> secuencia3A2B1C;
     protected List<Integer> secuencia1A2B1C;
-    protected List<Integer> secuencia2A1B1C;
+    protected List<Integer> secuenciaBC;
+    protected List<Integer> secuenciaAB;
+
 
     protected Vista v;
     protected int[][] arregloTInvariante;
@@ -28,12 +29,27 @@ public abstract class Politica {
         List<Integer> invarianteB = lectorTina.getListaTInvariantes().get(2);
         List<Integer> invarianteC = lectorTina.getListaTInvariantes().get(3);
 
-        secuencia3A2B1C=concatenar(concatenar(concatenar(invarianteA2,invarianteA1),invarianteB),invarianteC);
-        secuencia1A2B1C=concatenar(concatenar(concatenar(invarianteA2,invarianteA1),invarianteB),invarianteC);
+/*
+        Preferencia C   c a2 a1 b
+        1b 1c    c a1 b a2
+        2b 1c     b c a1 a2
+        todo B    b c a1 a2     o a1 a2
+        1a 1b   a1 a2 b c
+
+        */
+        secuenciaAB = concatenar(concatenar(concatenar(invarianteA1, invarianteA2), invarianteB), invarianteC);
+        secuenciaBC = concatenar(concatenar(concatenar(invarianteC, invarianteB), invarianteA1), invarianteA2);
+        secuencia3A2B1C = concatenar(concatenar(concatenar(invarianteA1, invarianteC), invarianteB), invarianteA2);
+
+
+        //secuencia3A2B1C.add(0,18);
+        //secuencia3A2B1C.add(0,1);
+        System.out.println(secuencia3A2B1C);
+        secuencia1A2B1C = concatenar(concatenar(concatenar(invarianteA1, invarianteA2), invarianteB), invarianteC);
         this.arregloTInvariante = lectorPipe.getTInvariantes();
         this.DisparosPorTransicion = new int[arregloTInvariante[0].length];
         this.lineaDeProduccion = new int[arregloTInvariante.length];
-        this.mapa = new HashMap<Integer, Hilo>();
+        this.mapa = new HashMap<>();
         try {
             Vista ventana = new Vista(this);
             this.v = ventana;
@@ -47,7 +63,7 @@ public abstract class Politica {
 
     public Integer getInteger(int entero) {
         for (Integer i : mapa.keySet()) {
-            if (i.intValue() == entero) {
+            if (i == entero) {
                 return i;
             }
         }
@@ -80,17 +96,13 @@ public abstract class Politica {
         return lineaDeProduccion;
     }
 
-    public void actualizarVista() {
+    protected void actualizarVista() {
         v.repintar();
         v.repaint();
     }
 
     public boolean hayAlguienParaDespertar(Matriz And) {
-        if (And.cantidadDeUnos() > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return And.cantidadDeUnos() > 0;
     }
 
     public void registrarHilo(Hilo hilo) {
@@ -104,7 +116,7 @@ public abstract class Politica {
         return this.mapa;
     }
 
-    public List<Integer> concatenar(List<Integer> primera, List<Integer> segunda) {
+    private List<Integer> concatenar(List<Integer> primera, List<Integer> segunda) {
         List<Integer> nueva = new ArrayList<>(primera);
         List<Integer> continuacion = new ArrayList<>(segunda);
         nueva.addAll(continuacion);

@@ -3,6 +3,7 @@ public class RdP {
     private Matriz marcadoActual;
     private Matriz incidencia;
     private Matriz incidenciaPrevia;
+    private Matriz incidenciaPosterior;
     private Matriz vectorSensibilizadas;
     private int contadorDisparos;
     private int contadorSolicitud;
@@ -12,7 +13,8 @@ public class RdP {
     private int[] beta;
     private long[] timeStamp;
     private long startTime;
-    public final int unidadTiempo = 10;
+    public final int unidadTiempo = 50;
+    private EnumLog motivo;
 
     private String[] autorizados;
 
@@ -22,6 +24,7 @@ public class RdP {
             this.marcadoInicial = (Matriz.obtenerFila(new Matriz(lectorPipe.getMarcados()), 0)).transpuesta();
             this.marcadoActual = this.marcadoInicial;
             this.incidenciaPrevia = new Matriz(lectorPipe.getIncidenciaPrevia());
+            this.incidenciaPosterior = new Matriz(lectorPipe.getIncidenciaPosterior());
             this.incidencia = new Matriz(lectorPipe.getIncidenciaCombinada());
             this.vectorSensibilizadas = Sensibilizadas(incidenciaPrevia, marcadoInicial);
 
@@ -36,6 +39,7 @@ public class RdP {
             this.autorizados = new String[this.alfa.length];
             contadorDisparos = 0;
             contadorSolicitud = 0;
+            motivo = null;
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -71,26 +75,66 @@ public class RdP {
                 throw new Exception("Transicion no valida.");
             }
             contadorSolicitud++;
-            if (this.transicionSensibilizada(x, vectorSensibilizadas) && estaDentroVentana(x, tiempo) && estaAutorizado(nombre, x)) {
-                this.marcadoActual = Matriz.suma(this.marcadoActual, Matriz.obtenerColumna(this.incidencia, x));
-                Matriz sensibilizadosViejos = getVectorSensibilizadas();
-                //int sensiPrevio = sensibilizadosViejos.getMatriz()[0][x];
-                this.vectorSensibilizadas = Sensibilizadas(this.incidenciaPrevia, this.marcadoActual);
-                actualizarTimeStamp(sensibilizadosViejos, vectorSensibilizadas, tiempo);
-                //sensiPrevio tuvo que ser 1 porque se pudo disparar
-                if (sensibilizadosViejos.getMatriz()[0][x] == vectorSensibilizadas.getMatriz()[0][x]) {
-                    timeStamp[x] = tiempo;
+            if ((estaAutorizado(x, nombre)) || (this.transicionSensibilizada(x, vectorSensibilizadas) &&
+                    estaDentroVentana(x, tiempo) && llegoPrimero(x))) {
+                if (this.motivo == EnumLog.MotivoDisparadoSinSleep) {
+                    disparoPrevio(x, tiempo, nombre);
                 }
-                autorizados[x] = null;
+                disparoPosterior(x, tiempo);
                 contadorDisparos++;
                 System.out.println("Contador de Disparos =  " + contadorDisparos);
                 return true;
             } else {
+                if (this.motivo == EnumLog.MotivoAntesDeVentana && llegoPrimero(x)) {
+                    this.motivo = EnumLog.MotivoAntesDeVentana;
+                    disparoPrevio(x, tiempo, nombre);
+                }
                 return false;
             }
         } catch (Exception e) {
+            if (this.motivo == EnumLog.MotivoNoAutorizado) {
+                return false;
+            }
+            e.printStackTrace();
             throw new Exception(e.getMessage());
         }
+    }
+
+    private void disparoPrevio(int x, long tiempo, String nombre) {
+        try {
+            this.marcadoActual = Matriz.suma(this.marcadoActual, Matriz.porEscalar(Matriz.obtenerColumna(this.incidenciaPrevia, x), -1));
+            Matriz sensibilizadosViejos = getVectorSensibilizadas();
+            //int sensiPrevio = sensibilizadosViejos.getMatriz()[0][x];
+            long tiempoPrevio = timeStamp[x];
+            this.vectorSensibilizadas = Sensibilizadas(this.incidenciaPrevia, this.marcadoActual);
+            actualizarTimeStamp(sensibilizadosViejos, vectorSensibilizadas, tiempo);
+            //sensiPrevio tuvo que ser 1 porque se pudo disparar
+            /*if (sensibilizadosViejos.getMatriz()[0][x] == vectorSensibilizadas.getMatriz()[0][x]) {
+                timeStamp[x] = tiempo;
+            }
+            */
+            timeStamp[x] = tiempoPrevio;
+        } catch (Exception e) {
+            System.err.println("Error en disparo previo");
+        }
+        autorizados[x] = nombre;
+    }
+
+    private void disparoPosterior(int x, long tiempo) {
+        try {
+            this.marcadoActual = Matriz.suma(this.marcadoActual, Matriz.obtenerColumna(this.incidenciaPosterior, x));
+            Matriz sensibilizadosViejos = getVectorSensibilizadas();
+            //int sensiPrevio = sensibilizadosViejos.getMatriz()[0][x];
+            this.vectorSensibilizadas = Sensibilizadas(this.incidenciaPrevia, this.marcadoActual);
+            actualizarTimeStamp(sensibilizadosViejos, vectorSensibilizadas, tiempo);
+            //sensiPrevio tuvo que ser 1 porque se pudo disparar
+            if (sensibilizadosViejos.getMatriz()[0][x] == vectorSensibilizadas.getMatriz()[0][x]) {
+                timeStamp[x] = tiempo;
+            }
+        } catch (Exception e) {
+            System.err.println("Error en disparo posterior");
+        }
+        autorizados[x] = null;
     }
 
     public static Matriz Sensibilizadas(Matriz ip, Matriz marcado) throws Exception {
@@ -129,7 +173,7 @@ public class RdP {
         return this.lectorPipe;
     }
 
-    public void actualizarTimeStamp(Matriz vectorSensibilizadasPrevia, Matriz vectorSensibilizadasNuevo, long tiempo) {
+    private void actualizarTimeStamp(Matriz vectorSensibilizadasPrevia, Matriz vectorSensibilizadasNuevo, long tiempo) {
         int[][] previa = vectorSensibilizadasPrevia.getMatriz();
         int[][] nuevo = vectorSensibilizadasNuevo.getMatriz();
         for (int i = 0; i < nuevo[0].length; i++) {
@@ -151,33 +195,66 @@ public class RdP {
         return (System.currentTimeMillis() - this.startTime);
     }
 
-    public boolean transicionSensibilizada(int transición, Matriz VectorSensi) {
-        if (VectorSensi.getMatriz()[0][transición] == 1) {
+    public boolean transicionSensibilizada(int transicion, Matriz VectorSensi) {
+        if (VectorSensi.getMatriz()[0][transicion] == 1) {
             return true;
         } else {
+            this.motivo = EnumLog.MotivoNoSensibilizado;
             return false;
         }
     }
 
-    public boolean estaDentroVentana(int x, long tiempo) {
-        if ((this.timeStamp[x] + this.alfa[x] * unidadTiempo) <= tiempo &&
-                (tiempo <= this.timeStamp[x] + this.beta[x] * unidadTiempo)) {
+    private boolean estaDentroVentana(int x, long tiempo) {
+        return (!llegoDespues(x, tiempo) && !llegoAntes(x, tiempo));
+    }
+
+    private boolean llegoAntes(int x, long tiempo) {
+        if ((this.timeStamp[x] + this.alfa[x] * unidadTiempo) <= tiempo) {
+            return false;
+        } else {
+            this.motivo = EnumLog.MotivoAntesDeVentana;
+            return true;
+        }
+    }
+
+    private boolean llegoDespues(int x, long tiempo) {
+        if ((tiempo <= this.timeStamp[x] + this.beta[x] * unidadTiempo)) {
+            return false;
+        } else {
+            this.motivo = EnumLog.MotivoDespuesDeVentana;
+            return true;
+        }
+    }
+
+    private boolean llegoPrimero(int transicion) {
+        if (autorizados[transicion] == null) {
+            this.motivo = EnumLog.MotivoDisparadoSinSleep;
             return true;
         } else {
+            this.motivo = EnumLog.MotivoNoAutorizado;
             return false;
         }
     }
 
-    public boolean estaAutorizado(String hilo, int transicion) {
-        if (autorizados[transicion] == null || autorizados[transicion].equals(hilo.trim())) {
-            return true;
-        } else {
+    private boolean estaAutorizado(int transicion, String nombre) throws Exception {
+        if (autorizados[transicion] == null) {
             return false;
+        } else {
+            if (autorizados[transicion].equals(nombre)) {
+                this.motivo = EnumLog.MotivoDisparadoConSleep;
+                return true;
+            } else {
+                this.motivo = EnumLog.MotivoNoAutorizado;
+                throw new Exception(" Válido para salir del if");
+            }
         }
     }
 
-    public void setAutorizado(String hilo, int transicion) {
-        this.autorizados[transicion] = hilo;
+    public long getTiempoADormir(int transicion, long tiempo) throws Exception {
+        long diferencia = timeStamp[transicion] + alfa[transicion] * unidadTiempo - tiempo;
+        if (diferencia < 0)
+            throw new Exception("No debio haberse dormido");
+        return diferencia;
     }
 
     public int[] getAlfa() {
@@ -186,5 +263,9 @@ public class RdP {
 
     public int[] getBeta() {
         return beta;
+    }
+
+    public EnumLog getMotivo() {
+        return this.motivo;
     }
 }

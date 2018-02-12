@@ -1,24 +1,16 @@
-/**
- * Created by Fabrizio_p on 30/08/2017.
- */
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Log {
     private File registro;
-    final String direccionRegistro;
+    private final String direccionRegistro;
     private BufferedReader br;
     private BufferedWriter bw;
     private String EncabezadoMarcados;
     private List<String> nombreHilos;
     private List<String> nombreTransiciones;
     private LectorPipe lectorPipe;
-    public final String[] resultadosDisparo = {"", "La transición no estaba sensibilizada",
-            "No comenzó la ventana de disparo", "Expiró el tiempo de la ventana de disparo",
-            "No estaba autorizado para disparar"};
-
 
     public Log(final String registro, LectorPipe lectorPipe) {
         this.direccionRegistro = registro;
@@ -30,7 +22,7 @@ public class Log {
 
     public List<String> leerLineas() {
         List<String> lineasLeidas;
-        lineasLeidas = new ArrayList<String>();
+        lineasLeidas = new ArrayList<>();
         try {
             FileReader fr = new FileReader(this.registro);
             br = new BufferedReader(fr);
@@ -115,7 +107,7 @@ public class Log {
         }
     }
 
-    public synchronized void registrarBasico(Monitor m, int transicion, boolean bool, long tiempo, int resultado) {
+    public synchronized void registrarBasico(Monitor m, int transicion, boolean bool, long tiempo, EnumLog motivo) {
         escribir("\n" + "Solicitud = " + m.getPetri().getContadorSolicitud(), this.getRegistro());
         escribir("Contador de disparos : " + m.getPetri().getContadorDisparos(), this.getRegistro());
         escribir("\n" + "Tiempo = " + tiempo, this.getRegistro());
@@ -129,7 +121,7 @@ public class Log {
             cadena = "  no ha podido disparar la transicion  : ";
         }
         escribir(((Hilo) (Thread.currentThread())).getNombre() + cadena + traducirDisparo(transicion), this.getRegistro());
-        escribir("\n" + "Motivo : " + this.resultadosDisparo[resultado], this.getRegistro());
+        escribir("\n" + "Motivo : " + motivo.toString(), this.getRegistro());
     }
 
     public synchronized void registrarBasico2(Monitor m, Matriz sensi, Matriz enco) {
@@ -155,24 +147,27 @@ public class Log {
     public synchronized void registrarTimeStamp(Monitor m) {
         escribir("TimeStamp = " + "\n", this.getRegistro());
         String cadena = "";
+        for (int i = 0; i < lectorPipe.nombreTransiciones().size(); i++) {
+            cadena = cadena + lectorPipe.nombreTransiciones().get(i) + "=" + Long.toString(m.getPetri().getTimeStamp()[i]) + "||";
+        }/*
         for (long l :
                 m.getPetri().getTimeStamp()) {
             cadena = cadena + "||" + Long.toString(l);
-        }
+        }*/
         escribir(cadena, this.getRegistro());
         escribir("\n", this.getRegistro());
     }
 
 
-    public synchronized void registrar(Monitor m, int transicion, boolean bool, Hilo h, long tiempo, int resultado) {
-        registrarBasico(m, transicion, bool, tiempo, resultado);
+    public synchronized void registrar(Monitor m, int transicion, boolean bool, Hilo h, long tiempo, EnumLog motivo) {
+        registrarBasico(m, transicion, bool, tiempo, motivo);
         registrarBasico2(m, m.getPetri().getVectorSensibilizadas(), m.getVectorEncolados());
         registrarEXtendido(m, m.getVectorAnd(), h);
         registrarTimeStamp(m);
     }
 
     public List<String> extraerLineas(String coincidencia, int desfasaje) {
-        List<String> lineas = new ArrayList<String>();
+        List<String> lineas = new ArrayList<>();
         List<String> lineasALeer = leerLineas();
         for (int i = 0; i < lineasALeer.size(); i++) {
             if (lineasALeer.get(i).contains(coincidencia)) {
@@ -209,14 +204,14 @@ public class Log {
     }
 
     public List<Matriz> getHistorialMarcados() {
-        List<Matriz> marcados = new ArrayList<Matriz>();
+        List<Matriz> marcados = new ArrayList<>();
         List<String> lineas = extraerMarcados();
         try {
             for (String linea :
                     lineas) {
                 marcados.add(this.convertirMarcado(linea).transpuesta());
             }
-        } catch (Exception e) {
+        } catch (Exception e) {e.printStackTrace();
         }
         return marcados;
 
@@ -239,7 +234,7 @@ public class Log {
     }
 
     public List<String> extraerDisparos() {
-        List<String> lineas = new ArrayList<String>();
+        List<String> lineas = new ArrayList<>();
         List<String> lineasALeer = leerLineas();
         for (int i = 0; i < lineasALeer.size(); i++) {
             if (lineasALeer.get(i).contains("no ha podido disparar la transicion") ||
@@ -252,7 +247,7 @@ public class Log {
 
     public List<Integer> getHistorialDisparos() {
         List<String> lineasDisparos = extraerDisparos();
-        List<Integer> disparos = new ArrayList<Integer>();
+        List<Integer> disparos = new ArrayList<>();
         String[] casteado;
         for (int i = 0; i < lineasDisparos.size(); i++) {
             casteado = lineasDisparos.get(i).split(":");
@@ -267,7 +262,7 @@ public class Log {
 
     public List<Boolean> getHistorialEstadoDisparos() {
         List<String> lineasDisparos = extraerDisparos();
-        List<Boolean> estados = new ArrayList<Boolean>();
+        List<Boolean> estados = new ArrayList<>();
         String[] casteado;
         for (int i = 0; i < lineasDisparos.size(); i++) {
             if (lineasDisparos.get(i).contains("no")) {
@@ -280,7 +275,7 @@ public class Log {
     }
 
     public List<String> getHistorialActividadHilos() {
-        List<String> hilos = new ArrayList<String>();
+        List<String> hilos = new ArrayList<>();
         List<String> lineasALeer = this.extraerDisparos();
         for (String s :
                 lineasALeer) {
@@ -298,7 +293,7 @@ public class Log {
     }
 
     public List<String> getListaDeHilos(String linea) {
-        List<String> hilos = new ArrayList<String>();
+        List<String> hilos = new ArrayList<>();
         String[] cast = linea.split("=");
         cast = cast[1].split("\\|\\|");
         for (int i = 0; i < cast.length - 1; i++) {
@@ -353,7 +348,7 @@ public class Log {
     }
 
     public List<String> getHistorialHilosPermitidos() {
-        List<String> hilosPermitidos = new ArrayList<String>();
+        List<String> hilosPermitidos = new ArrayList<>();
         List<String> lineasALeer = this.leerLineas();
         for (String linea :
                 lineasALeer) {
@@ -380,14 +375,14 @@ public class Log {
     public void leerHilos() {
         // No hace falta un list de list de string para las transiciones, basta con contains
         // Si va a hacer falta para verificar el orden de las trnasiciones
-        this.nombreHilos = new ArrayList<String>();
+        this.nombreHilos = new ArrayList<>();
         String[] cast;
         for (String linea :
                 extraerLineas("Nombre de Hilo =", 0)) {
             cast = linea.split("=");
             nombreHilos.add(cast[1].trim());
         }
-        this.nombreTransiciones = new ArrayList<String>();
+        this.nombreTransiciones = new ArrayList<>();
         for (String linea :
                 extraerLineas("Nombre de Hilo =", 1)) {
             nombreTransiciones.add(linea);
@@ -403,10 +398,10 @@ public class Log {
     }
 
     public List<List<String>> getTransicionesDeHilos() {
-        List<List<String>> lista = new ArrayList<List<String>>();
-        List<String> lineas = new ArrayList<String>(extraerLineas("Nombre de Hilo =", 1));
+        List<List<String>> lista = new ArrayList<>();
+        List<String> lineas = new ArrayList<>(extraerLineas("Nombre de Hilo =", 1));
         for (int i = 0; i < lineas.size(); i++) {
-            List<String> transiciones = new ArrayList<String>();
+            List<String> transiciones = new ArrayList<>();
             String[] cast = lineas.get(i).split("-");
             for (int j = 0; j < cast.length - 1; j++) {
                 transiciones.add(cast[j].trim());
@@ -417,7 +412,7 @@ public class Log {
     }
 
     public List<String> getEstadosMonitor() {
-        List<String> lineas = new ArrayList<String>();
+        List<String> lineas = new ArrayList<>();
         List<String> lineasALeer = leerLineas();
         for (int i = 0; i < lineasALeer.size(); i++) {
             if (lineasALeer.get(i).contains("obtiene el mutex")) {
@@ -450,7 +445,7 @@ public class Log {
     }
 
     public List<String> getHistorialMotivos() {
-        List<String> motivos = new ArrayList<String>();
+        List<String> motivos = new ArrayList<>();
         List<String> lineasLeidas = extraerLineas("Motivo : ", 0);
         String[] cast;
         for (String linea :

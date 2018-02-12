@@ -1,5 +1,5 @@
 public class Matriz {
-    final int m, n;
+    private final int m, n;
     int[][] matriz;
 
     public Matriz(int[][] matriz) throws MatrizException {
@@ -99,8 +99,7 @@ public class Matriz {
         }
         int[][] array = new int[matriz.getN()][1];
         array[x][0] = 1;
-        Matriz resultado = Matriz.multiplicacion(matriz, new Matriz(array));
-        return resultado;
+        return Matriz.multiplicacion(matriz, new Matriz(array));
     }
 
     public static Matriz obtenerFila(Matriz matriz, int x) throws MatrizException {
@@ -109,8 +108,7 @@ public class Matriz {
         }
         int[][] array = new int[1][matriz.getM()];
         array[0][x] = 1;
-        Matriz resultado = Matriz.multiplicacion(new Matriz(array), matriz);
-        return resultado;
+        return Matriz.multiplicacion(new Matriz(array), matriz);
     }
 
     public Matriz transpuesta() {
@@ -168,17 +166,13 @@ public class Matriz {
     }
 
     public Matriz clonar() throws MatrizException {
-        try {
-            int[][] arreglo = new int[this.getM()][this.getN()];
-            for (int i = 0; i < this.getM(); i++) {
-                for (int j = 0; j < this.getN(); j++) {
-                    arreglo[i][j] = this.getMatriz()[i][j];
-                }
+        int[][] arreglo = new int[this.getM()][this.getN()];
+        for (int i = 0; i < this.getM(); i++) {
+            for (int j = 0; j < this.getN(); j++) {
+                arreglo[i][j] = this.getMatriz()[i][j];
             }
-            return new Matriz(arreglo);
-        } catch (Exception e) {
-            throw e;
         }
+        return new Matriz(arreglo);
     }
 
     public static Matriz matrizVacia(int m, int n) throws Exception {

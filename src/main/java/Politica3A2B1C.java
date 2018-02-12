@@ -7,11 +7,14 @@ public class Politica3A2B1C extends Politica {
     }
 
     public Integer getLock(Matriz VectorAnd) {
-
-        this.secuencia=this.secuencia3A2B1C;
-        for (int i = 0; i < this.secuencia.size(); i++) {
-            if (VectorAnd.getMatriz()[0][secuencia.get(i)] != 0) {
-                return getInteger(secuencia.get(i));
+        if ((lineaDeProduccion[0] + lineaDeProduccion[1]) / 50 < lineaDeProduccion[2] / 50) {
+            secuencia = secuenciaAB;
+        } else {
+            secuencia = secuenciaBC;
+        }
+        for (Integer aSecuencia : this.secuencia) {
+            if (VectorAnd.getMatriz()[0][aSecuencia] != 0) {
+                return getInteger(aSecuencia);
             }
         }
         System.err.println("No se ha seleccionado ninguno hilo del vector AND");

@@ -28,6 +28,7 @@ public class Principal {
             Hilo h6 = new Hilo("Hilo 6", listas.l6, politica);
             Hilo h7 = new Hilo("Hilo 7", listas.l7, politica);
             Hilo h8 = new Hilo("Hilo 8", listas.l8, politica);
+            Hilo h9 = new Hilo("Hilo 9", listas.l9, politica);
 
             monitor.getPolitica().registrarHilo(h1);
             monitor.getPolitica().registrarHilo(h2);
@@ -37,6 +38,7 @@ public class Principal {
             monitor.getPolitica().registrarHilo(h6);
             monitor.getPolitica().registrarHilo(h7);
             monitor.getPolitica().registrarHilo(h8);
+            monitor.getPolitica().registrarHilo(h9);
 
             h1.start();
             h2.start();
@@ -46,6 +48,7 @@ public class Principal {
             h6.start();
             h7.start();
             h8.start();
+            h9.start();
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
