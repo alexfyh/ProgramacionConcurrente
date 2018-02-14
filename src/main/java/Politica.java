@@ -7,49 +7,33 @@ import java.util.Map;
  * Created by YepezHinostroza on 31/8/2017.
  */
 public abstract class Politica {
-    protected Map<Integer, Hilo> mapa;
     protected List<Integer> secuencia;
-    protected List<Integer> equilibrio;
     protected List<Integer> secuencia3A2B1C;
-    protected List<Integer> secuencia1A2B1C;
     protected List<Integer> secuenciaBC;
     protected List<Integer> secuenciaAB;
-
 
     protected Vista v;
     protected int[][] arregloTInvariante;
     protected int[] DisparosPorTransicion;
     protected int[] lineaDeProduccion;
+    protected final int factorCambio=50;
 
 
-    public Politica(LectorPipe lectorPipe) {
-        LectorTina lectorTina = new LectorTina(lectorPipe);
+    public Politica(LectorPipe lectorPipe, LectorTina lectorTina) {
         List<Integer> invarianteA1 = lectorTina.getListaTInvariantes().get(0);
         List<Integer> invarianteA2 = lectorTina.getListaTInvariantes().get(1);
         List<Integer> invarianteB = lectorTina.getListaTInvariantes().get(2);
         List<Integer> invarianteC = lectorTina.getListaTInvariantes().get(3);
 
-/*
-        Preferencia C   c a2 a1 b
-        1b 1c    c a1 b a2
-        2b 1c     b c a1 a2
-        todo B    b c a1 a2     o a1 a2
-        1a 1b   a1 a2 b c
-
-        */
         secuenciaAB = concatenar(concatenar(concatenar(invarianteA1, invarianteA2), invarianteB), invarianteC);
         secuenciaBC = concatenar(concatenar(concatenar(invarianteC, invarianteB), invarianteA1), invarianteA2);
-        secuencia3A2B1C = concatenar(concatenar(concatenar(invarianteA1, invarianteC), invarianteB), invarianteA2);
-
-
-        //secuencia3A2B1C.add(0,18);
-        //secuencia3A2B1C.add(0,1);
-        System.out.println(secuencia3A2B1C);
-        secuencia1A2B1C = concatenar(concatenar(concatenar(invarianteA1, invarianteA2), invarianteB), invarianteC);
+        secuencia3A2B1C = concatenar(concatenar(concatenar(invarianteC, invarianteB), invarianteA2), invarianteA1);
+/*
+C A2 B A1       1A  1B  0.1C
+ */
         this.arregloTInvariante = lectorPipe.getTInvariantes();
         this.DisparosPorTransicion = new int[arregloTInvariante[0].length];
         this.lineaDeProduccion = new int[arregloTInvariante.length];
-        this.mapa = new HashMap<>();
         try {
             Vista ventana = new Vista(this);
             this.v = ventana;
@@ -60,17 +44,6 @@ public abstract class Politica {
     }
 
     public abstract Integer getLock(Matriz VectorAnd);
-
-    public Integer getInteger(int entero) {
-        for (Integer i : mapa.keySet()) {
-            if (i == entero) {
-                return i;
-            }
-        }
-        System.err.println("No estoy devolviendo nada");
-        //Deberpia tirar una excepción por si falla, pero me la soba a estas alturas
-        return null;
-    }
 
     public void incrementarDisparoDeTransicion(int transicion) {
         this.DisparosPorTransicion[transicion] = this.DisparosPorTransicion[transicion] + 1;
@@ -103,17 +76,6 @@ public abstract class Politica {
 
     public boolean hayAlguienParaDespertar(Matriz And) {
         return And.cantidadDeUnos() > 0;
-    }
-
-    public void registrarHilo(Hilo hilo) {
-        for (Integer i : hilo.getTransiciones()) {
-            this.mapa.put(i, hilo);
-        }
-        Monitor.getUniqueInstance(0).getLog().registrarHilo(hilo.getNombre(), hilo.getTransiciones());
-    }
-
-    public Map<Integer, Hilo> getMapa() {
-        return this.mapa;
     }
 
     private List<Integer> concatenar(List<Integer> primera, List<Integer> segunda) {

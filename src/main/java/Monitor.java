@@ -3,6 +3,7 @@ import java.util.concurrent.Semaphore;
 
 public class Monitor {
     private static Monitor UniqueInstance;
+    public static int pol=0;
     private Semaphore mutex;
     private boolean k;
     private RdP petri;
@@ -11,8 +12,9 @@ public class Monitor {
     private Log log;
     private Politica politica;
     private long tiempo;
+    private GestorDeColas gestorDeColas;
 
-    public static Monitor getUniqueInstance(int pol) {
+    public static Monitor getUniqueInstance() {
         if (Monitor.UniqueInstance == null) {
             Monitor.UniqueInstance = new Monitor(pol);
             return Monitor.UniqueInstance;
@@ -28,18 +30,18 @@ public class Monitor {
             petri = new RdP();
             VectorEncolados = Matriz.matrizVacia(1, petri.getIncidenciaPrevia().getN());
             VectorAnd = Matriz.matrizVacia(1, getPetri().getIncidenciaPrevia().getN());
-            if (pol == 1) {
-                this.politica = new Politica1A2B1C(getPetri().getLectorPipe());
-            } else {
-                if (pol == 2) {
-                    this.politica = new Politica3A2B1C(getPetri().getLectorPipe());
-                } else {
-                    this.politica = new PoliticaRandom(getPetri().getLectorPipe());
-                }
+            this.gestorDeColas = new GestorDeColas();
+            switch (pol){
+                case 1: this.politica = new Politica1A2B1C(petri.getLectorPipe(),petri.getLectorTina());
+                        break;
+                case 2: this.politica = new Politica3A2B1C(petri.getLectorPipe(),petri.getLectorTina());
+                        break;
+                default: this.politica = new PoliticaRandom(petri.getLectorPipe(),petri.getLectorTina());
+                        break;
             }
             final String path = (new File(".")).getCanonicalPath();
-            final String invariantesregistro = "/registro.txt";
-            this.log = new Log(path + invariantesregistro, getPetri().getLectorPipe());
+            final String registro = "/registro.txt";
+            this.log = new Log(path + registro, getPetri().getLectorPipe());
             log.limpiar();
         } catch (Exception e) {
             System.err.println("No se ha podido inicializar el monitor");
@@ -51,11 +53,11 @@ public class Monitor {
         do {
             volverAEntrar = false;
             try {
-                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  pide el mutex.", this.log.getRegistro());
+                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  pide el mutex.");
                 mutex.acquire();
                 k = true;
-                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  obtiene el mutex.", this.log.getRegistro());
-                this.log.escribir(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", this.log.getRegistro());
+                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  obtiene el mutex.");
+                this.log.escribir(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
                 while (k) {
                     tiempo = getPetri().currentTime();
                     k = petri.disparar(transicion, tiempo, ((Hilo) (Thread.currentThread())).getNombre());
@@ -64,34 +66,29 @@ public class Monitor {
                         VectorAnd.and(this.getPetri().getVectorSensibilizadas(), VectorEncolados);
                         if (politica.hayAlguienParaDespertar(VectorAnd)) {
                             Integer locker = politica.getLock(VectorAnd);
-                            int t = locker;
-                            this.log.registrar(this, transicion, true, politica.getMapa().get(locker), tiempo, petri.getMotivo());
-                            VectorEncolados.getMatriz()[0][t] = 0;
-                            while (politica.getMapa().get(locker).getState() != Thread.State.WAITING) {
-                                Thread.currentThread().sleep(1);
-                                System.err.println("Esperando que se duerma para despertarlo : " + politica.getMapa().get(locker).getNombre());
-                            }
+                            this.log.registrar(this, transicion, true, tiempo, petri.getMotivo(),gestorDeColas.desencolar(locker));
+                            VectorEncolados.getMatriz()[0][locker] = 0;
                             synchronized (locker) {
-                                locker.notifyAll();
+                                locker.notify();
                                 return;
                             }
                         } else {
-                            this.log.registrar(this, transicion, true, null, tiempo, petri.getMotivo());
+                            this.log.registrar(this, transicion, true, tiempo, petri.getMotivo(),null);
                             k = false;
                         }
                     } else {
                         if (petri.getMotivo() == EnumLog.MotivoAntesDeVentana) {
                             volverAEntrar = true;
                             k = false;
-                            this.log.registrar(this, transicion, false, null, tiempo, petri.getMotivo());
-                            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + " se dormira " + petri.getTiempoADormir(transicion, tiempo) + " ms", this.log.getRegistro());
+                            this.log.registrar(this, transicion, true, tiempo, petri.getMotivo(),null);
+                            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + " se dormira " + petri.getTiempoADormir(transicion, tiempo) + " ms");
                         } else {
-                            encolar(transicion, tiempo, petri.getMotivo());
+                            encolar(transicion, tiempo);
                         }
                     }
                 }
-                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex", this.log.getRegistro());
-                this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", this.log.getRegistro());
+                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex");
+                this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
                 mutex.release();
                 if (volverAEntrar) {
                     Thread.currentThread().sleep(petri.getTiempoADormir(transicion, tiempo));
@@ -116,14 +113,15 @@ public class Monitor {
         return this.VectorAnd;
     }
 
-    public void encolar(Integer transicion, long tiempo, EnumLog motivo) {
+    private void encolar(Integer transicion, long tiempo) {
         this.VectorEncolados.getMatriz()[0][transicion] = 1;
-        this.log.registrar(this, transicion, false, null, tiempo, motivo);
+        this.log.registrar(this, transicion, true, tiempo, petri.getMotivo(),null);
         synchronized (transicion) {
-            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex", this.log.getRegistro());
-            this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<", this.log.getRegistro());
+            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex");
+            this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
             mutex.release();
             try {
+                gestorDeColas.encolar(transicion,((Hilo) (Thread.currentThread())));
                 transicion.wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();

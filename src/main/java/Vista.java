@@ -1,25 +1,17 @@
 
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.GridLayout;
-import javax.swing.SwingConstants;
 
 public class Vista extends JFrame {
-    final Politica p;
+    private final Politica p;
 
-    final JPanel contentPane;
-    JLabel cantPiezasA;
-    JLabel cantPiezasB;
-    JLabel cantPiezasC;
-
-
-    /**
-     * Launch the application.
-     */
+    private final JPanel contentPane;
+    private JLabel cantPiezasA;
+    private JLabel cantPiezasB;
+    private JLabel cantPiezasC;
 
 
     /**
@@ -31,7 +23,7 @@ public class Vista extends JFrame {
         setResizable(false);
         setAlwaysOnTop(true);
         setTitle("Sistema de Manufacturacion Computarizada");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setBounds(100, 100, 213, 361);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

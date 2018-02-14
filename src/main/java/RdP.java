@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class RdP {
     private Matriz marcadoInicial;
     private Matriz marcadoActual;
@@ -8,14 +11,14 @@ public class RdP {
     private int contadorDisparos;
     private int contadorSolicitud;
     private LectorPipe lectorPipe;
+    private LectorTina lectorTina;
 
     private int[] alfa;
     private int[] beta;
     private long[] timeStamp;
     private long startTime;
-    public final int unidadTiempo = 50;
+    public final int unidadTiempo = 10;
     private EnumLog motivo;
-
     private String[] autorizados;
 
     public RdP() {
@@ -28,7 +31,7 @@ public class RdP {
             this.incidencia = new Matriz(lectorPipe.getIncidenciaCombinada());
             this.vectorSensibilizadas = Sensibilizadas(incidenciaPrevia, marcadoInicial);
 
-            LectorTina lectorTina = new LectorTina(this.lectorPipe);
+            this.lectorTina = new LectorTina(this.lectorPipe);
             this.alfa = lectorTina.getArregloAlfa();
             this.beta = lectorTina.getArregloBeta();
             this.startTime = System.currentTimeMillis();
@@ -267,5 +270,13 @@ public class RdP {
 
     public EnumLog getMotivo() {
         return this.motivo;
+    }
+
+    public String [] getAutorizados(){
+        return this.autorizados;
+    }
+
+    public LectorTina getLectorTina() {
+        return lectorTina;
     }
 }

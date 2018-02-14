@@ -5,7 +5,10 @@ public enum EnumLog {
     MotivoAntesDeVentana("Todavia no comenzo la ventana de disparo"),
     MotivoDespuesDeVentana("Expiro el tiempo de la ventana de disparo"),
     MotivoNoAutorizado("No estaba autorizado para disparar"),
-    MotivoDisparadoConSleep("Volvio del sleep");
+    MotivoDisparadoConSleep("Volvio del sleep"),
+
+    ResultadoPositivoDisparo("  ha disparado la transicion  = "),
+    ResultadoNegativoDisparo("  no ha podido disparar la transicion  = ");
 
     private String cadena;
 

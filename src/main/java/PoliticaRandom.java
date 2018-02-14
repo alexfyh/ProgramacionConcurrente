@@ -6,8 +6,8 @@ import java.util.List;
  */
 public class PoliticaRandom extends Politica {
 
-    public PoliticaRandom(LectorPipe lectorPipe) {
-        super(lectorPipe);
+    public PoliticaRandom(LectorPipe lectorPipe,LectorTina lectorTina) {
+        super(lectorPipe,lectorTina);
         this.v.setVisible(false);
     }
 
@@ -18,6 +18,6 @@ public class PoliticaRandom extends Politica {
                 enteros.add(i);
             }
         }
-        return getInteger(enteros.get((int) (Math.random() * enteros.size())));
+        return (enteros.get((int) (Math.random() * enteros.size())));
     }
 }

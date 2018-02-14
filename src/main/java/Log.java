@@ -1,6 +1,8 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Log {
     private File registro;
@@ -11,12 +13,14 @@ public class Log {
     private List<String> nombreHilos;
     private List<String> nombreTransiciones;
     private LectorPipe lectorPipe;
+    private Map<Integer, Hilo> mapa;
 
     public Log(final String registro, LectorPipe lectorPipe) {
         this.direccionRegistro = registro;
         this.registro = new File(registro);
         this.lectorPipe = lectorPipe;
         this.EncabezadoMarcados = getMarcadosImprimibles();
+        this.mapa = new HashMap<>();
 
     }
 
@@ -47,9 +51,9 @@ public class Log {
         }
     }
 
-    public synchronized void escribir(final String linea, final File destino) {
+    public synchronized void escribir(final String linea) {
         try {
-            FileWriter fw = new FileWriter(destino, true);
+            FileWriter fw = new FileWriter(this.getRegistro(), true);
             bw = new BufferedWriter(fw);
             bw.write(linea);
             bw.newLine();
@@ -74,14 +78,17 @@ public class Log {
         this.registro = new File(direccionRegistro);
     }
 
-    public synchronized void registrarHilo(String nombre, List<Integer> transiciones) {
-        this.escribir("Nombre de Hilo = " + nombre, this.registro);
+    public synchronized void registrarHilo(Hilo h) {
+        this.escribir("Nombre de Hilo = " + h.getNombre());
         String cadenas = "";
         for (Integer i :
-                transiciones) {
+                h.getTransiciones()) {
             cadenas = cadenas + traducirDisparo(i) + " - ";
         }
-        this.escribir(cadenas, this.registro);
+        this.escribir(cadenas);
+        for (Integer i : h.getTransiciones()) {
+            this.mapa.put(i, h);
+        }
     }
 
     public String traducirDisparo(int i) {
@@ -107,63 +114,52 @@ public class Log {
         }
     }
 
-    public synchronized void registrarBasico(Monitor m, int transicion, boolean bool, long tiempo, EnumLog motivo) {
-        escribir("\n" + "Solicitud = " + m.getPetri().getContadorSolicitud(), this.getRegistro());
-        escribir("Contador de disparos : " + m.getPetri().getContadorDisparos(), this.getRegistro());
-        escribir("\n" + "Tiempo = " + tiempo, this.getRegistro());
-        escribir("Cantidad de piezas producidas:  " + "A = " + (m.getPolitica().getLineaDeProduccion()[0] + m.getPolitica().getLineaDeProduccion()[1])
-                + "   B = " + m.getPolitica().getLineaDeProduccion()[2] + "   C = " + m.getPolitica().getLineaDeProduccion()[3], this.getRegistro());
-        escribir("\n", this.getRegistro());
+    public synchronized void registrar(Monitor m, int transicion, boolean bool, long tiempo, EnumLog motivo,Hilo h) {
+        escribir( "Solicitud = " + m.getPetri().getContadorSolicitud());
+        escribir("Contador de disparos = " + m.getPetri().getContadorDisparos());
+        escribir("Tiempo = " + tiempo);
+        escribir("Cantidad de piezas producidas : " + "A = " + (m.getPolitica().getLineaDeProduccion()[0] + m.getPolitica().getLineaDeProduccion()[1])
+                + "   B = " + m.getPolitica().getLineaDeProduccion()[2] + "   C = " + m.getPolitica().getLineaDeProduccion()[3]);
+        escribir("\n");
         String cadena;
         if (bool) {
-            cadena = "  ha disparado la transicion  : ";
+            cadena = EnumLog.ResultadoPositivoDisparo.toString();
         } else {
-            cadena = "  no ha podido disparar la transicion  : ";
+            cadena = EnumLog.ResultadoNegativoDisparo.toString();
         }
-        escribir(((Hilo) (Thread.currentThread())).getNombre() + cadena + traducirDisparo(transicion), this.getRegistro());
-        escribir("\n" + "Motivo : " + motivo.toString(), this.getRegistro());
-    }
+        escribir(((Hilo) (Thread.currentThread())).getNombre() + cadena + traducirDisparo(transicion));
+        escribir("\n" + "Motivo : " + motivo.toString());
 
-    public synchronized void registrarBasico2(Monitor m, Matriz sensi, Matriz enco) {
-        escribir("\n", this.getRegistro());
-        escribir("Marcado Actual : ", this.getRegistro());
-        escribir(this.getMarcadosImprimibles(), this.getRegistro());
-        escribir(m.getPetri().marcadoActual().toString() + "\n", this.getRegistro());
-        escribir("\n", this.getRegistro());
-        escribir(printHilosDeVector("Hilos Sensibilizados  =  ", sensi, m), this.getRegistro());
-        escribir(printHilosDeVector("Hilos Encolados  =  ", enco, m), this.getRegistro());
-    }
+        escribir("\n");
+        escribir("Marcado Actual : ");
+        escribir(this.getMarcadosImprimibles());
+        escribir(m.getPetri().marcadoActual().toString() + "\n");
+        escribir("\n");
 
-    public synchronized void registrarEXtendido(Monitor m, Matriz and, Hilo h) {
-        escribir(printHilosDeVector("Hilos en ambas  =  ", and, m), this.getRegistro());
+        registrarTimeStamp(m);
+
+        registrarTransicicionesEsperandoDisparar(m.getPetri());
+
+        escribir(printHilosDeVector("Hilos Sensibilizados  =  ", m.getPetri().getVectorSensibilizadas(), m));
+        escribir(printHilosDeVector("Hilos Encolados  =  ", m.getVectorEncolados(), m));
+
+        escribir(printHilosDeVector("Hilos en ambas  =  ", m.getVectorAnd(), m));
         if (h != null) {
-            escribir("Hilo despertado  =  " + h.getNombre(), this.getRegistro());
+            escribir("Hilo despertado  =  " + h.getNombre());
         } else {
-            escribir("Hilo despertado  =  " + "", this.getRegistro());
+            escribir("Hilo despertado  =  " + "");
         }
-        escribir("\n", this.getRegistro());
+        escribir("\n");
     }
 
     public synchronized void registrarTimeStamp(Monitor m) {
-        escribir("TimeStamp = " + "\n", this.getRegistro());
+        escribir("TimeStamp = " + "\n");
         String cadena = "";
         for (int i = 0; i < lectorPipe.nombreTransiciones().size(); i++) {
             cadena = cadena + lectorPipe.nombreTransiciones().get(i) + "=" + Long.toString(m.getPetri().getTimeStamp()[i]) + "||";
-        }/*
-        for (long l :
-                m.getPetri().getTimeStamp()) {
-            cadena = cadena + "||" + Long.toString(l);
-        }*/
-        escribir(cadena, this.getRegistro());
-        escribir("\n", this.getRegistro());
-    }
-
-
-    public synchronized void registrar(Monitor m, int transicion, boolean bool, Hilo h, long tiempo, EnumLog motivo) {
-        registrarBasico(m, transicion, bool, tiempo, motivo);
-        registrarBasico2(m, m.getPetri().getVectorSensibilizadas(), m.getVectorEncolados());
-        registrarEXtendido(m, m.getVectorAnd(), h);
-        registrarTimeStamp(m);
+        }
+        escribir(cadena);
+        escribir("\n");
     }
 
     public List<String> extraerLineas(String coincidencia, int desfasaje) {
@@ -233,12 +229,12 @@ public class Log {
         return this.EncabezadoMarcados;
     }
 
-    public List<String> extraerDisparos() {
+    public List<String> extraerLineaDisparos() {
         List<String> lineas = new ArrayList<>();
         List<String> lineasALeer = leerLineas();
         for (int i = 0; i < lineasALeer.size(); i++) {
-            if (lineasALeer.get(i).contains("no ha podido disparar la transicion") ||
-                    lineasALeer.get(i).contains("ha disparado la transicion  :")) {
+            if (lineasALeer.get(i).contains(EnumLog.ResultadoPositivoDisparo.toString()) ||
+                    lineasALeer.get(i).contains(EnumLog.ResultadoNegativoDisparo.toString())) {
                 lineas.add(lineasALeer.get(i));
             }
         }
@@ -246,11 +242,11 @@ public class Log {
     }
 
     public List<Integer> getHistorialDisparos() {
-        List<String> lineasDisparos = extraerDisparos();
+        List<String> lineasDisparos = extraerLineaDisparos();
         List<Integer> disparos = new ArrayList<>();
         String[] casteado;
         for (int i = 0; i < lineasDisparos.size(); i++) {
-            casteado = lineasDisparos.get(i).split(":");
+            casteado = lineasDisparos.get(i).split("=");
             try {
                 disparos.add(traducirTransicion(casteado[1].trim()));
             } catch (Exception e) {
@@ -260,8 +256,8 @@ public class Log {
         return disparos;
     }
 
-    public List<Boolean> getHistorialEstadoDisparos() {
-        List<String> lineasDisparos = extraerDisparos();
+    public List<Boolean> getHistorialResultadoDisparo() {
+        List<String> lineasDisparos = extraerLineaDisparos();
         List<Boolean> estados = new ArrayList<>();
         String[] casteado;
         for (int i = 0; i < lineasDisparos.size(); i++) {
@@ -274,9 +270,9 @@ public class Log {
         return estados;
     }
 
-    public List<String> getHistorialActividadHilos() {
+    public List<String> getHistorialHiloEnMonitor() {
         List<String> hilos = new ArrayList<>();
-        List<String> lineasALeer = this.extraerDisparos();
+        List<String> lineasALeer = this.extraerLineaDisparos();
         for (String s :
                 lineasALeer) {
             String[] cast;
@@ -437,7 +433,7 @@ public class Log {
         String cadena = inicio;
         for (int i = 0; i < Vector.getN(); i++) {
             if (Vector.getMatriz()[0][i] != 0) {
-                cadena = cadena + monitor.getPolitica().getMapa().get(i).getNombre();
+                cadena = cadena +this.mapa.get(i).getNombre();
                 cadena = cadena + " || ";
             }
         }
@@ -454,5 +450,27 @@ public class Log {
             motivos.add(cast[1]);
         }
         return motivos;
+    }
+
+    public List<String> getTransicicionesEsperando(String [] autorizados){
+        List<String> transiciones = new ArrayList<>();
+        for (int i = 0; i < autorizados.length; i++) {
+            if (autorizados[i]!=null){
+                transiciones.add(traducirDisparo(i));
+            }
+        }
+        return transiciones;
+    }
+    public String lineaTransicionesEsperando(List<String> transiciones){
+        String cadena ="";
+        for (String nombre :
+                transiciones) {
+            cadena = cadena +nombre+" || ";
+        }
+        return cadena;
+    }
+    public void registrarTransicicionesEsperandoDisparar(RdP petri){
+        escribir("Transiciones esperando disparar: "+lineaTransicionesEsperando(getTransicicionesEsperando(petri.getAutorizados())));
+        escribir("\n");
     }
 }
