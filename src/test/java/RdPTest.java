@@ -53,15 +53,17 @@ public class RdPTest {
                 if (historialEstadoDisparos.get(i)) {
                     assertTrue(historialSolicitudes.get(i) + "\n" + "No se pudo haber disparado = " + log.traducirDisparo(historialDisparos.get(i)),
                             petri.transicionSensibilizada(historialDisparos.get(i), RdP.Sensibilizadas(incidenciaPrevia, marcadoPrevio))
-                    ||historialTranicionesPorDisparar.get(i-1).contains(log.traducirDisparo(historialDisparos.get(i))));
+                                    || historialTranicionesPorDisparar.get(i - 1).contains(log.traducirDisparo(historialDisparos.get(i))));
                 } else {
                     if (historialMotivos.get(i).equals(EnumLog.MotivoNoSensibilizado.toString()))
-                    assertFalse(historialSolicitudes.get(i) + "\n" + "Si se pudo haber disparado = " + log.traducirDisparo(historialDisparos.get(i)),
-                            petri.transicionSensibilizada(historialDisparos.get(i), RdP.Sensibilizadas(incidenciaPrevia, marcadoPrevio)));
+                        assertFalse(historialSolicitudes.get(i) + "\n" + "Si se pudo haber disparado = " + log.traducirDisparo(historialDisparos.get(i)),
+                                petri.transicionSensibilizada(historialDisparos.get(i), RdP.Sensibilizadas(incidenciaPrevia, marcadoPrevio)));
                 }
                 marcadoPrevio = historialMarcados.get(i);
             }
-        } catch (Exception e) { e.printStackTrace();}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -73,36 +75,35 @@ public class RdPTest {
         try {
             Matriz marcadoPrevio = Matriz.obtenerFila(new Matriz(this.lectorPipe.getMarcados()), 0).transpuesta();
             for (int i = 0; i < historialMarcados.size(); i++) {
-                if(historialEstadoDisparos.get(i)){
-                    if(this.historialMotivos.get(i).equals(EnumLog.MotivoDisparadoSinSleep.toString())){
+                if (historialEstadoDisparos.get(i)) {
+                    if (this.historialMotivos.get(i).equals(EnumLog.MotivoDisparadoSinSleep.toString())) {
                         Matriz calculada = Matriz.suma(marcadoPrevio, Matriz.obtenerColumna(petri.getIncidencia(), historialDisparos.get(i)));
-                        assertTrue(historialSolicitudes.get(i)+ "\n" + this.historialHilos.get(i) + "\n" + log.getMarcadosJustificados() + "\n" + calculada,
+                        assertTrue(historialSolicitudes.get(i) + "\n" + this.historialHilos.get(i) + "\n" + log.getMarcadosJustificados() + "\n" + calculada,
                                 historialMarcados.get(i).esIgual(calculada));
-                    }
-                    else{
-                        assertTrue(historialSolicitudes.get(i)+"Motivo debe ser con sleep",historialMotivos.get(i).equals(EnumLog.MotivoDisparadoConSleep.toString()));
+                    } else {
+                        assertTrue(historialSolicitudes.get(i) + "Motivo debe ser con sleep", historialMotivos.get(i).equals(EnumLog.MotivoDisparadoConSleep.toString()));
                         Matriz calculada = Matriz.suma(marcadoPrevio, Matriz.obtenerColumna(petri.getIncidenciaPosterior(), historialDisparos.get(i)));
-                        assertTrue(historialSolicitudes.get(i)+ "\n" + this.historialHilos.get(i) + "\n" + log.getMarcadosJustificados() + "\n" + calculada,
+                        assertTrue(historialSolicitudes.get(i) + "\n" + this.historialHilos.get(i) + "\n" + log.getMarcadosJustificados() + "\n" + calculada,
                                 historialMarcados.get(i).esIgual(calculada));
                     }
-                } else{
-                    if(this.historialMotivos.get(i).equals(EnumLog.MotivoAntesDeVentana.toString())){
-                        Matriz calculada = Matriz.suma(marcadoPrevio, Matriz.porEscalar(Matriz.obtenerColumna(petri.getIncidenciaPrevia(), historialDisparos.get(i)),-1));
-                        assertTrue(historialSolicitudes.get(i)+ "\n" + this.historialHilos.get(i) + "\n" + log.getMarcadosJustificados() + "\n" + calculada,
+                } else {
+                    if (this.historialMotivos.get(i).equals(EnumLog.MotivoAntesDeVentana.toString())) {
+                        Matriz calculada = Matriz.suma(marcadoPrevio, Matriz.porEscalar(Matriz.obtenerColumna(petri.getIncidenciaPrevia(), historialDisparos.get(i)), -1));
+                        assertTrue(historialSolicitudes.get(i) + "\n" + this.historialHilos.get(i) + "\n" + log.getMarcadosJustificados() + "\n" + calculada,
                                 historialMarcados.get(i).esIgual(calculada));
-                    }
-                    else{
-                        assertTrue(historialMotivos.get(i).equals(EnumLog.MotivoNoSensibilizado.toString())||
-                        historialMotivos.get(i).equals(EnumLog.MotivoDespuesDeVentana.toString())||
-                        historialMotivos.get(i).equals(EnumLog.MotivoNoAutorizado.toString()));
-                        assertTrue(historialSolicitudes.get(i) +"\n"+this.historialHilos.get(i)+"\n"+log.getMarcadosJustificados()+"\n"+marcadoPrevio,
+                    } else {
+                        assertTrue(historialMotivos.get(i).equals(EnumLog.MotivoNoSensibilizado.toString()) ||
+                                historialMotivos.get(i).equals(EnumLog.MotivoDespuesDeVentana.toString()) ||
+                                historialMotivos.get(i).equals(EnumLog.MotivoNoAutorizado.toString()));
+                        assertTrue(historialSolicitudes.get(i) + "\n" + this.historialHilos.get(i) + "\n" + log.getMarcadosJustificados() + "\n" + marcadoPrevio,
                                 historialMarcados.get(i).esIgual(marcadoPrevio));
                     }
                 }
-                marcadoPrevio=historialMarcados.get(i);
+                marcadoPrevio = historialMarcados.get(i);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        catch (Exception e){e.printStackTrace();}
     }
 
     @Test
@@ -111,22 +112,43 @@ public class RdPTest {
         No está sacado como producto punto, sino como producto vectorial
          */
         // POR AHÍ CONVIENE LLAMARLO MATRIZ DE PINVARIANTES Y NO PINVARIANTE
-        Matriz resultadoPInv= new Matriz(this.lectorPipe.getResultadoPInvariantes());
+        Matriz resultadoPInv = new Matriz(this.lectorPipe.getResultadoPInvariantes());
         Matriz PInvariantes = new Matriz((this.lectorPipe.getPInvariantes()));
         System.out.println("Matriz de resultado de los P Invariantes = ");
         System.out.println(resultadoPInv);
         for (int i = 0; i < historialMarcados.size(); i++) {
             //assertEquals(constantes.resultadoPInv,Matriz.multiplicacion(constantes.PInvariante,historialMarcados.get(i)));
-            Matriz resultado = Matriz.multiplicacion(PInvariantes,historialMarcados.get(i));
-            if (this.historialTranicionesPorDisparar.get(i).size()==0){
-                assertTrue(historialSolicitudes.get(i)+"\n"+this.historialHilos.get(i)+"\n"+resultado,
+            Matriz resultado = Matriz.multiplicacion(PInvariantes, historialMarcados.get(i));
+            if (this.historialTranicionesPorDisparar.get(i).size() == 0) {
+                assertTrue(historialSolicitudes.get(i) + "\n" + this.historialHilos.get(i) + "\n" + resultado,
                         resultado.esIgual(resultadoPInv));
             }
         }
     }
 
     @Test
-    public void verificarTimeStamp(){
+    public void tInvariantes() {
+        Matriz marcadoInicial = petri.marcadoInicial();
+        LectorTina lectorTina = new LectorTina(lectorPipe);
+        List<List<Integer>> tinvariantes = lectorTina.getListaTInvariantes();
+        for (List<Integer> tinvariante :
+                tinvariantes) {
+            for (Integer transicion :
+                    tinvariante) {
+                try {
+                    petri.disparar(transicion,
+                            petri.getTimeStamp()[transicion] + petri.getAlfa()[transicion] * petri.unidadTiempo,
+                            "hilo");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            assertTrue(marcadoInicial.esIgual(petri.marcadoActual()));
+        }
+    }
+
+    @Test
+    public void verificarTimeStamp() {
 
     }
 
