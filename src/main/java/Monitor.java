@@ -53,11 +53,10 @@ public class Monitor {
         do {
             volverAEntrar = false;
             try {
-                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  pide el mutex.");
+                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() +EnumLog.Texto_PideMutex.toString());
                 mutex.acquire();
                 k = true;
-                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  obtiene el mutex.");
-                this.log.escribir(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() +EnumLog.Texto_ObtieneMutex.toString());
                 while (k) {
                     tiempo = getPetri().currentTime();
                     k = petri.disparar(transicion, tiempo, ((Hilo) (Thread.currentThread())).getNombre());
@@ -66,29 +65,28 @@ public class Monitor {
                         VectorAnd.and(this.getPetri().getVectorSensibilizadas(), VectorEncolados);
                         if (politica.hayAlguienParaDespertar(VectorAnd)) {
                             Integer locker = politica.getLock(VectorAnd);
-                            this.log.registrar(this, transicion, true, tiempo, petri.getMotivo(),gestorDeColas.desencolar(locker));
+                            this.log.registrar(this, transicion, k, tiempo, petri.getMotivo(),gestorDeColas.desencolar(locker));
                             VectorEncolados.getMatriz()[0][locker] = 0;
                             synchronized (locker) {
                                 locker.notify();
                                 return;
                             }
                         } else {
-                            this.log.registrar(this, transicion, true, tiempo, petri.getMotivo(),null);
+                            this.log.registrar(this, transicion, k, tiempo, petri.getMotivo(),null);
                             k = false;
                         }
                     } else {
                         if (petri.getMotivo() == EnumLog.MotivoAntesDeVentana) {
                             volverAEntrar = true;
                             k = false;
-                            this.log.registrar(this, transicion, true, tiempo, petri.getMotivo(),null);
-                            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + " se dormira " + petri.getTiempoADormir(transicion, tiempo) + " ms");
+                            this.log.registrar(this, transicion, k, tiempo, petri.getMotivo(),null);
+                            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() +EnumLog.Texto_SeDormira.toString()+ petri.getTiempoADormir(transicion, tiempo) +EnumLog.Texto_ms.toString());
                         } else {
                             encolar(transicion, tiempo);
                         }
                     }
                 }
-                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex");
-                this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+                this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + EnumLog.Texto_DevuelveMutex.toString());
                 mutex.release();
                 if (volverAEntrar) {
                     Thread.currentThread().sleep(petri.getTiempoADormir(transicion, tiempo));
@@ -115,10 +113,9 @@ public class Monitor {
 
     private void encolar(Integer transicion, long tiempo) {
         this.VectorEncolados.getMatriz()[0][transicion] = 1;
-        this.log.registrar(this, transicion, true, tiempo, petri.getMotivo(),null);
+        this.log.registrar(this, transicion, k, tiempo, petri.getMotivo(),null);
         synchronized (transicion) {
-            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + "  devuelve el mutex");
-            this.log.escribir("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+            this.log.escribir(((Hilo) (Thread.currentThread())).getNombre() + EnumLog.Texto_DevuelveMutex.toString());
             mutex.release();
             try {
                 gestorDeColas.encolar(transicion,((Hilo) (Thread.currentThread())));

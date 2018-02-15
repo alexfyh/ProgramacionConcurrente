@@ -3,18 +3,14 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.*;
-
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class HiloTest {
     RdP petri;
     Log log;
-
     private List<String> nombreDeHilos;
     private List<List<String>> nombreTransiciones;
     private List<String> historialSolicitudes;
-
 
     @Before
     public void setUp() throws Exception {
@@ -23,7 +19,6 @@ public class HiloTest {
         final String invariantesregistro = "/registro.txt";
         this.log = new Log(path + invariantesregistro, lectorPipe);
         petri = new RdP();
-
         log.leerLineas();
         log.leerHilos();
         this.nombreDeHilos = log.getNombreHilos();
@@ -31,35 +26,19 @@ public class HiloTest {
         this.historialSolicitudes = log.extraerLineas("Solicitud =", 0);
     }
 
-    //@Test
-    public void showHilos() {
-
-
-        for (int i = 0; i < log.getNombreHilos().size(); i++) {
-            System.out.println("Hilo : "+ log.getNombreHilos().get(i));
-            System.out.println("Transiciones : "+ log.getNombreTransiciones().get(i));
-        }
-        System.out.println("----------------");
-
-        for (List l :
-                log.getTransicionesDeHilos()) {
-            System.out.println(l);
-        }
-
-    }
-
     @Test
     public void disparoEnSecuencia(){
-        List<String> historialHilosEnMonitor = this.log.getHistorialActividadHilos();
-        List<Boolean> historialResultadoDeSolicitud = this.log.getHistorialEstadoDisparos();
-        List<String> historialDisparos = this.log.extraerDisparos();
+        List<String> historialHilosEnMonitor = this.log.getHistorialHiloEnMonitor();
+        List<Boolean> historialResultadoDeSolicitud = this.log.getHistorialResultadoDisparo();
+        List<String> historialDisparos = this.log.extraerLineaDisparos();
         int[] contadoresDeDisparos = new int[this.nombreDeHilos.size()];
         for (int i = 0; i < historialHilosEnMonitor.size(); i++) {
             int indice = getIndice(historialHilosEnMonitor.get(i));
             System.out.println(this.nombreTransiciones.get(indice).get(contadoresDeDisparos[indice]%this.nombreTransiciones.get(indice).size()) +"  =   "+historialDisparos.get(i));
 
-            String [] cast =  historialDisparos.get(i).split("la transicion  : ");
+            String [] cast =  historialDisparos.get(i).split(EnumLog.ResultadoPositivoDisparo.toString());
             String nombreTransicion = cast[1].trim();
+            System.out.println(nombreTransicion);
             assertTrue(this.historialSolicitudes.get(i)+"\n"+"Tuvo que disparar "+this.nombreTransiciones.get(indice).get(contadoresDeDisparos[indice]%this.nombreTransiciones.get(indice).size()),
                     (this.nombreTransiciones.get(indice).get(contadoresDeDisparos[indice]%this.nombreTransiciones.get(indice).size())).equals(nombreTransicion));
             if (historialResultadoDeSolicitud.get(i)){

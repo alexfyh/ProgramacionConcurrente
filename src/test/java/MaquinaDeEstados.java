@@ -9,30 +9,32 @@ public class MaquinaDeEstados {
         this.estadoMonitor.setHilo(null);
     }
 
-    public void desbloquear(String hilo) throws Exception {
+    public boolean desbloquear(String hilo){
         if (this.estadoMonitor == EstadoMonitor.Bloqueado && this.estadoMonitor.getHilo().equals(hilo)) {
             this.estadoMonitor = EstadoMonitor.Disponible;
             this.estadoMonitor.setHilo(null);
+            return true;
         } else {
-            throw new Exception("Error");
+            return false;
         }
     }
 
-    public void bloquear(String hilo) throws Exception {
+    public boolean bloquear(String hilo){
         if (this.estadoMonitor == EstadoMonitor.Disponible) {
             this.estadoMonitor = EstadoMonitor.Bloqueado;
             this.estadoMonitor.setHilo(hilo);
+            return true;
         } else {
-            throw new Exception("Error");
+            return false;
         }
     }
 
-    public void despertar(String hilo) throws Exception {
-        // hara falta dos atributos?
+    public boolean despertar(String hilo){
         if (this.estadoMonitor == EstadoMonitor.Bloqueado) {
             this.estadoMonitor.setHilo(hilo);
+            return true;
         } else {
-            throw new Exception("Error");
+            return false;
         }
     }
 }

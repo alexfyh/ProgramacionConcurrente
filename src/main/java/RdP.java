@@ -56,6 +56,10 @@ public class RdP {
         return this.incidenciaPrevia;
     }
 
+    public Matriz getIncidenciaPosterior() {
+        return incidenciaPosterior;
+    }
+
     public Matriz marcadoInicial() {
         return this.marcadoInicial;
     }

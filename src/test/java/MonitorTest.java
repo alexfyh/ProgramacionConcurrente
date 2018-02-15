@@ -26,7 +26,7 @@ public class MonitorTest {
         this.log = new Log(path + invariantesregistro, lectorPipe);
         System.out.println();
         this.historialSolicitudes = log.extraerLineas("Solicitud =", 0);
-        this.historialEstadoDisparos = log.getHistorialEstadoDisparos();
+        this.historialEstadoDisparos = log.getHistorialResultadoDisparo();
         this.historialMotivos = log.getHistorialMotivos();
         Lineas = log.leerLineas();
 
@@ -36,25 +36,21 @@ public class MonitorTest {
     public void estadosMonitor() {
         List<String> estados = log.getEstadosMonitor();
         MaquinaDeEstados maquina = new MaquinaDeEstados();
-        try {
-            for (String evento :
-                    estados) {
-                if (evento.contains("obtiene")) {
-                    String[] cast = evento.split("obtiene");
-                    maquina.bloquear(cast[0].trim());
+        for (String evento :
+                estados) {
+            if (evento.contains(EnumLog.Texto_ObtieneMutex.toString())) {
+                String[] cast = evento.split(EnumLog.Texto_ObtieneMutex.toString());
+                assertTrue("El monitor no estaba disponible.",maquina.bloquear(cast[0].trim()));
+            } else {
+                if (evento.contains(EnumLog.Texto_DevuelveMutex.toString())) {
+                    String[] cast = evento.split(EnumLog.Texto_DevuelveMutex.toString());
+                    assertTrue(cast[0].trim()+"El monitor estaba disponible " +
+                            "o "+ cast[0].trim()+ " no pudo haber devuelto.",maquina.desbloquear(cast[0].trim()));
                 } else {
-                    if (evento.contains("devuelve")) {
-                        String[] cast = evento.split("devuelve");
-
-                        maquina.desbloquear(cast[0].trim());
-                    } else {
-                        String[] cast = evento.split("=");
-                        maquina.despertar(cast[1].trim());
-                    }
+                    String[] cast = evento.split("=");
+                    assertTrue("El monitor no estaba disponible.",maquina.despertar(cast[1].trim()));
                 }
             }
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
         }
     }
 
@@ -68,16 +64,15 @@ public class MonitorTest {
 
         // NO ANALIZA LA ÚLTIMA MODIFICACIÓN POR IndexOutOfBoundsException
 
-        List<String> actividadHilos = log.getHistorialActividadHilos();
-        List<Boolean> estadosDisparos = log.getHistorialEstadoDisparos();
+        List<String> actividadHilos = log.getHistorialHiloEnMonitor();
+        List<Boolean> estadosDisparos = log.getHistorialResultadoDisparo();
         List<String> hilosDespertados = log.getHistorialHilosDespertados();
         List<List<String>> hilosEncolados = log.getHistorialHilosEncolados();
         List<String> encolados = new ArrayList<>();
         for (int i = 0; i < hilosEncolados.size() - 1; i++) {
-            if (!estadosDisparos.get(i)&&!historialMotivos.get(i).contains("No comenzó la ventana de disparo")) {
+            if (!estadosDisparos.get(i) && !historialMotivos.get(i).contains(EnumLog.MotivoAntesDeVentana.toString())) {
                 encolados.add(actividadHilos.get(i));
             }
-            //System.out.println(encolados+"\n"+hilosEncolados.get(i));
             assertTrue(this.historialSolicitudes.get(i) + "\n" + "Encolados correctos = " + encolados,
                     hilosIguales(encolados, hilosEncolados.get(i)));
             if (hilosDespertados.get(i).trim().length() != 0) {
@@ -91,8 +86,8 @@ public class MonitorTest {
         /*Verifica que el próximo en intentar disparar sea el que obtuvo el mutex o el recien despertado.
         En sí, tambien verifico tambien que tenga prioridad sobre el mutex el recién despertado
          */
-        List<String> hilosDisparando = log.getHistorialActividadHilos();
-        List<String> hilosPermitods = log.getHistorialHilosPermitidos();
+        List<String> hilosDisparando = log.getHistorialHiloEnMonitor();
+        List<String> hilosPermitods = log.getHistorialHilosConMutex();
 
         for (int i = 0; i < hilosDisparando.size(); i++) {
             assertTrue(this.historialSolicitudes.get(i),
@@ -162,14 +157,14 @@ public class MonitorTest {
         }
     }
 
-    public boolean hiloRepetido(List<String> lista) {
-        Set<String> conjunto = new TreeSet<String>(lista);
+    private boolean hiloRepetido(List<String> lista) {
+        Set<String> conjunto = new TreeSet<>(lista);
         return !(lista.size() == conjunto.size());
     }
 
-    public boolean hilosIguales(List<String> hilo1, List<String> hilo2) {
-        Set<String> conjunto = new TreeSet<String>(hilo1);
-        Set<String> conjunto2 = new TreeSet<String>(hilo2);
+    private boolean hilosIguales(List<String> hilo1, List<String> hilo2) {
+        Set<String> conjunto = new TreeSet<>(hilo1);
+        Set<String> conjunto2 = new TreeSet<>(hilo2);
         return (conjunto.equals(conjunto2));
     }
 }
