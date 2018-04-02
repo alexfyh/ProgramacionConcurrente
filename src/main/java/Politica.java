@@ -8,29 +8,33 @@ import java.util.Map;
  */
 public abstract class Politica {
     protected List<Integer> secuencia;
-    protected List<Integer> secuencia3A2B1C;
+    protected List<Integer> secuencia2A1B;
     protected List<Integer> secuenciaBC;
     protected List<Integer> secuenciaAB;
+    protected List<Integer> secuenciaAuxiliar;
+    protected List<Integer> secuenciaAuxiliar2;
+    protected List<Integer> secuenciaAuxiliar3;
+
 
     protected Vista v;
     protected int[][] arregloTInvariante;
     protected int[] DisparosPorTransicion;
     protected int[] lineaDeProduccion;
-    protected final int factorCambio=50;
+    protected final int factorCambio=20;
 
 
     public Politica(LectorPipe lectorPipe, LectorTina lectorTina) {
-        List<Integer> invarianteA1 = lectorTina.getListaTInvariantes().get(0);
-        List<Integer> invarianteA2 = lectorTina.getListaTInvariantes().get(1);
+        List<Integer> invarianteA2 = lectorTina.getListaTInvariantes().get(0);
+        List<Integer> invarianteA1 = lectorTina.getListaTInvariantes().get(1);
         List<Integer> invarianteB = lectorTina.getListaTInvariantes().get(2);
         List<Integer> invarianteC = lectorTina.getListaTInvariantes().get(3);
 
-        secuenciaAB = concatenar(concatenar(concatenar(invarianteA1, invarianteA2), invarianteB), invarianteC);
-        secuenciaBC = concatenar(concatenar(concatenar(invarianteC, invarianteB), invarianteA1), invarianteA2);
-        secuencia3A2B1C = concatenar(concatenar(concatenar(invarianteC, invarianteB), invarianteA2), invarianteA1);
-/*
-C A2 B A1       1A  1B  0.1C
- */
+        secuenciaAB = concatenar(concatenar(concatenar(invarianteA2, invarianteA1), invarianteB), invarianteC);
+        secuenciaBC = concatenar(concatenar(concatenar(invarianteC, invarianteB), invarianteA2), invarianteA1);
+        secuenciaAuxiliar = concatenar(concatenar(concatenar(invarianteC, invarianteA1), invarianteA2), invarianteB);
+        secuenciaAuxiliar2 = concatenar(concatenar(concatenar(invarianteA2, invarianteC), invarianteA1), invarianteB);
+        secuenciaAuxiliar3 = concatenar(concatenar(concatenar(invarianteC, invarianteA2), invarianteB), invarianteA1);
+
         this.arregloTInvariante = lectorPipe.getTInvariantes();
         this.DisparosPorTransicion = new int[arregloTInvariante[0].length];
         this.lineaDeProduccion = new int[arregloTInvariante.length];

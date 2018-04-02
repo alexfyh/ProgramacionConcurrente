@@ -17,7 +17,7 @@ public class RdP {
     private int[] beta;
     private long[] timeStamp;
     private long startTime;
-    public final int unidadTiempo = 10;
+    public final int unidadTiempo = 20;
     private EnumLog motivo;
     private String[] autorizados;
 
@@ -106,8 +106,7 @@ public class RdP {
             throw new Exception(e.getMessage());
         }
     }
-
-    private void disparoPrevio(int x, long tiempo, String nombre) {
+    protected void disparoPrevio(int x, long tiempo, String nombre) {
         try {
             this.marcadoActual = Matriz.suma(this.marcadoActual, Matriz.porEscalar(Matriz.obtenerColumna(this.incidenciaPrevia, x), -1));
             Matriz sensibilizadosViejos = getVectorSensibilizadas();
@@ -127,7 +126,7 @@ public class RdP {
         autorizados[x] = nombre;
     }
 
-    private void disparoPosterior(int x, long tiempo) {
+    protected void disparoPosterior(int x, long tiempo) {
         try {
             this.marcadoActual = Matriz.suma(this.marcadoActual, Matriz.obtenerColumna(this.incidenciaPosterior, x));
             Matriz sensibilizadosViejos = getVectorSensibilizadas();
@@ -211,11 +210,11 @@ public class RdP {
         }
     }
 
-    private boolean estaDentroVentana(int x, long tiempo) {
+    protected boolean estaDentroVentana(int x, long tiempo) {
         return (!llegoDespues(x, tiempo) && !llegoAntes(x, tiempo));
     }
 
-    private boolean llegoAntes(int x, long tiempo) {
+    protected boolean llegoAntes(int x, long tiempo) {
         if ((this.timeStamp[x] + this.alfa[x] * unidadTiempo) <= tiempo) {
             return false;
         } else {
@@ -224,7 +223,7 @@ public class RdP {
         }
     }
 
-    private boolean llegoDespues(int x, long tiempo) {
+    protected boolean llegoDespues(int x, long tiempo) {
         if ((tiempo <= this.timeStamp[x] + this.beta[x] * unidadTiempo)) {
             return false;
         } else {
@@ -233,7 +232,7 @@ public class RdP {
         }
     }
 
-    private boolean llegoPrimero(int transicion) {
+    protected boolean llegoPrimero(int transicion) {
         if (autorizados[transicion] == null) {
             this.motivo = EnumLog.MotivoDisparadoSinSleep;
             return true;
@@ -243,7 +242,7 @@ public class RdP {
         }
     }
 
-    private boolean estaAutorizado(int transicion, String nombre) throws Exception {
+    protected boolean estaAutorizado(int transicion, String nombre) throws Exception {
         if (autorizados[transicion] == null) {
             return false;
         } else {

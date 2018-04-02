@@ -28,6 +28,7 @@ public class Hilo extends Thread {
             while (true) {
                 for (Integer i : enteros) {
                     monitor.dispararTransicion(i);
+                    System.out.println(Evento.values()[i]);
                 }
             }
         } catch (Exception e) {
